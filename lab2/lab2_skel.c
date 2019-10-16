@@ -85,8 +85,8 @@ void segsum(uint16_t sum) {
 	segment_data[3] = 0xFF;
     if(sum < 0xA)	//Compares the sum to 10
 	segment_data[1] = 0xFF;
-    if(sum == 0x0)	//Compares the sum to 0
-	segment_data[0] = 0xFF;
+//    if(sum == 0x0)	//Compares the sum to 0
+//	segment_data[0] = 0xFF;
   //now move data to right place for misplaced colon position
    return;
 }//segment_sum
@@ -120,9 +120,9 @@ while(1){
 
   PORTB = 0x00;			//We are only using pin 4-7 on PORTB and this action 
 			//keeps the pwm pin low as well as disabling the tristate buffer
-
-  sum = sum % 1024;		//bounds the sum of the buttons 0-1023
-
+  if(sum > 1023) {
+    sum = sum % 1023;		//bounds the sum of the buttons 0-1023
+  }
   //break up the disp_value to 4, BCD digits in the array: call (segsum)
   segsum(sum);
 
