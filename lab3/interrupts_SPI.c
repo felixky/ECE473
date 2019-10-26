@@ -18,7 +18,18 @@ Descriptiion: In Lab 3, I will be implementing an LED display and a
 #include <avr/io.h>
 #include <util/delay.h>
 
-volatile b_press;
+void spi_init(){
+   DDRB |= (1<<DDB0) | (1<<DDB1) | (1<<DDB2);	//output mode for SS, MOSI, SCLK 
+   SPCR |= (1<<MSTR) | (1<<CPOL) | (1<<CPHA) | (1<<SPE);//master mode, clk low on idle,
+// leading edge smaple , and spi enable 
+   SPsR |= (1<<SPI2X);			//double speed operation  
+}
+
+uint8_t spi_read() {
+   SPDR = 0x00;
+   while(bit_is_clear(SPSP, SPIF)){}
+   return SPDR;
+}
 
 //holds data to be sent to the segments. logic zero turns segment on
 uint8_t segment_data[5] = {
@@ -91,10 +102,60 @@ void segsum(uint16_t sum) {
    return;
 }//segment_sum
 
-uint8_t main() {
-  uint16_t sum = 0x0000;
+ISR(TIMER0_OVF_vect) {
 
 }
+
+uint8_t read_encoder() {
+
+}
+
+void bars() {
+
+}
+
+
+uint8_t main() {
+   uint16_t sum = 0x0000;
+
+   TIMSK |= (1<<TOIE0);			//enable interrupts
+   TCCR0 |= (1<<CS02) | (1<<CS00);	//normal mode, prescale by 128
+  
+   DDRB |= 0xF0;				//PB4-6 is SEL0-2, PB7 is PWM
+   DDRE |= 0x40;				//PE6 is SHIFT_LD_N
+   DDRD |= 0x06;				//PE1 is CLK_INH and PE2 is SRCLK
+
+   spi_init();				//Initalize SPI
+
+   sei();				//Enable interrupts
+   while(1){
+      segsum(sum);			//Send sum to be formatted for the 7 seg display
+      DDRA = 0xFF;			//Makes PORTA all outputs
+
+      for( int j = 0; j < 5; j++) {	//cycles through each of the five digits
+         PORTA = segment_data[j];	//Writes the segment data to PORTA aka the segments
+         PORTB = j << 4;		//J is bound 0-4 and that value is shifted left 4 so that 
+				//the digit to be displayed is in pin 4, 5, and 6 
+         _delay_ms(1);		//delay so that the display does not flicker
+      }
+
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
