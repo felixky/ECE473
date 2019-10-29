@@ -18,16 +18,19 @@ Descriptiion: In Lab 3, I will be implementing an LED display and a
 #include <avr/io.h>
 #include <util/delay.h>
 
+volatile uint8_t EC_a_prev;
+volatile uint8_t EC_b_prev;
+
 void spi_init(){
    DDRB |= (1<<DDB0) | (1<<DDB1) | (1<<DDB2);	//output mode for SS, MOSI, SCLK 
    SPCR |= (1<<MSTR) | (1<<CPOL) | (1<<CPHA) | (1<<SPE);//master mode, clk low on idle,
 // leading edge smaple , and spi enable 
-   SPsR |= (1<<SPI2X);			//double speed operation  
+   SPSR |= (1<<SPI2X);			//double speed operation  
 }
 
 uint8_t spi_read() {
    SPDR = 0x00;
-   while(bit_is_clear(SPSP, SPIF)){}
+   while(bit_is_clear(SPSR, SPIF)){}
    return SPDR;
 }
 
@@ -102,33 +105,101 @@ void segsum(uint16_t sum) {
    return;
 }//segment_sum
 
-ISR(TIMER0_OVF_vect) {
+//ISR(TIMER0_OVF_vect) {
 
-}
+//}
 
 uint8_t read_encoder() {
+   uint8_t encoder_value;
+   uint8_t value = 0x00;
+   uint8_t ec_a[2];
+   uint8_t ec_b[2];
 
+   //Shift_LD_N low
+   PORTE &= 0x00;	//Begining of SHIFT_LD_N pulse. It is low here
+   _delay_us(100);
+   PORTE |= 0xFF;	//End of SHIFT_LD_N pulse. back to high
+   PORTD &= 0x00;	//CLK_INH low
+
+   encoder_value = spi_read();
+   PORTD |= 0x02;	//CLK_INH high
+   
+   ec_a[0] = encoder_value & 0x01;   
+   ec_a[1] = encoder_value & 0x02;   
+   ec_b[0] = encoder_value & 0x04;   
+   ec_b[1] = encoder_value & 0x08;
+
+   if(ec_a[0] != EC_a_prev) {   
+      if(ec_a[0] > EC_a_prev){
+	if(ec_a[0] == ec_a[1]){
+    	   value = -1;
+        }
+	else
+	   value = 1;
+      }   
+      else if(ec_a[0] < EC_a_prev){
+   	if(ec_a[0] == ec_a[1]){
+	   value = -1;
+	}
+	else
+	   value = 1;
+      }
+      else
+	value = 0;
+   }
+   else {
+      if(ec_b[0] > EC_b_prev){
+	if(ec_b[0] == ec_b[1]){
+    	   value = -1;
+        }
+	else
+	   value = 1;
+      }   
+      else if(ec_b[0] < EC_b_prev){
+   	if(ec_b[0] == ec_b[1]){
+	   value = -1;
+	}
+	else
+	   value = 1;
+      }
+      else
+	value = 0;
+   }
+EC_a_prev = ec_a[0];
+EC_b_prev = ec_b[0];
+
+return value;
 }
 
-void bars() {
+//void bars() {
 
-}
+//}
 
 
 uint8_t main() {
    uint16_t sum = 0x0000;
 
-   TIMSK |= (1<<TOIE0);			//enable interrupts
-   TCCR0 |= (1<<CS02) | (1<<CS00);	//normal mode, prescale by 128
+//   TIMSK |= (1<<TOIE0);			//enable interrupts
+//   TCCR0 |= (1<<CS02) | (1<<CS00);	//normal mode, prescale by 128
   
    DDRB |= 0xF0;				//PB4-6 is SEL0-2, PB7 is PWM
    DDRE |= 0x40;				//PE6 is SHIFT_LD_N
-   DDRD |= 0x06;				//PE1 is CLK_INH and PE2 is SRCLK
+   DDRD |= 0x0B;				//PE1 is CLK_INH and PE2 is SRCLK
+   PORTD |= 0x02;
+   PORTE |= 0xFF;
 
    spi_init();				//Initalize SPI
 
-   sei();				//Enable interrupts
+//   sei();				//Enable interrupts
+   
    while(1){
+
+      sum = sum + read_encoder();
+      if(sum>1023)
+	sum = sum % 1023;
+      if(sum<0)
+	sum = 1023;
+
       segsum(sum);			//Send sum to be formatted for the 7 seg display
       DDRA = 0xFF;			//Makes PORTA all outputs
 
@@ -140,14 +211,8 @@ uint8_t main() {
       }
 
    }
+return 0;
 }
-
-
-
-
-
-
-
 
 
 
