@@ -19,8 +19,8 @@ Descriptiion: In Lab 3, I will be implementing an LED display and a
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
-volatile int16_t sum;
-volatile int8_t mode_sel;
+volatile int16_t sum = 0;
+volatile int8_t mode_sel = 1;
 volatile int8_t EC_a_prev;
 volatile int8_t EC_b_prev;
 
@@ -109,25 +109,29 @@ void segsum(uint16_t sum) {
 }//segment_sum
 
 
-int8_t bars() {
+void bars() {
+   DDRA = 0x00;
+   PORTA = 0xFF;
+   PORTB |= PINB | 0x70;
+   //_delay_us(1);
+
    for(int i = 0; i < 8; i++) {
       if(chk_buttons(i) == 1) {
-   	 mode_sel = i;
+   	 mode_sel = (i+1);
       }
    }
+   DDRA = 0xFF;
    SPDR = mode_sel;
    while(bit_is_clear(SPSR, SPIF)){}
    PORTB |= (1<<PB0);
    PORTB &= 0xFE;
    
-return mode_sel;
+return ;
 }
 
 int8_t read_encoder() {
    uint8_t encoder_value;
    int8_t value = 0x00;
-//   uint8_t ec_a[2];
-//   uint8_t ec_b[2];
    uint8_t ec_a;
    uint8_t ec_b;
 
@@ -139,15 +143,16 @@ int8_t read_encoder() {
 
    encoder_value = spi_read();
    PORTD |= 0x02;	//CLK_INH high
-   value = 1;//bars();
+   value = mode_sel;
    ec_a = encoder_value & 0x03;  //Only grabs these bits 0000_0011
    ec_b = encoder_value & 0x0C;  //Only grabs these bits 0000_1100 
+   ec_b = (ec_b >> 2);
 
    if(ec_a != EC_a_prev){
-      if(!(EC_a_prev) & (ec_a == 0x01)){
+      if(!(EC_a_prev) && (ec_a == 0x01)){
          value = value; //1;
       }
-      else if(!(EC_a_prev) & (ec_a == 0x03)){
+      else if(!(EC_a_prev) && (ec_a == 0x02)){
 	 value = -(value); //-1;
       }
       else
@@ -166,54 +171,11 @@ int8_t read_encoder() {
 EC_a_prev = ec_a;
 EC_b_prev = ec_b;
 
- /*  ec_a[0] = encoder_value & 0x01;   
-   ec_a[1] = encoder_value & 0x02;   
-   ec_b[0] = encoder_value & 0x04;   
-   ec_b[1] = encoder_value & 0x08;*/
-
-  /* if(ec_a[0] != EC_a_prev) {   
-      if(ec_a[0] > EC_a_prev){
-	if(ec_a[0] == ec_a[1]){
-    	   value = -1;
-        }
-	else
-	   value = 1;
-      }   
-      else if(ec_a[0] < EC_a_prev){
-   	if(ec_a[0] == ec_a[1]){
-	   value = -1;
-	}
-	else
-	   value = 1;
-      }
-      else
-	value = 0;
-   }
-   else {
-      if(ec_b[0] > EC_b_prev){
-	if(ec_b[0] == ec_b[1]){
-    	   value = -1;
-        }
-	else
-	   value = 1;
-      }   
-      else if(ec_b[0] < EC_b_prev){
-   	if(ec_b[0] == ec_b[1]){
-	   value = -1;
-	}
-	else
-	   value = 1;
-      }
-      else
-	value = 0;
-   }
-EC_a_prev = ec_a[0];
-EC_b_prev = ec_b[0];*/
-
 return value;
 }
 
 ISR(TIMER0_OVF_vect) {
+      bars();      
       sum = sum + read_encoder();
       if(sum>1023)
 	sum = sum % 1023;
@@ -241,9 +203,8 @@ int main() {
    sei();				//Enable interrupts
    
    while(1){
-      bars();
       segsum(sum);			//Send sum to be formatted for the 7 seg display
-      DDRA = 0xFF;			//Makes PORTA all outputs
+//      DDRA = 0xFF;			//Makes PORTA all outputs
 
       for( int j = 0; j < 5; j++) {	//cycles through each of the five digits
          PORTA = segment_data[j];	//Writes the segment data to PORTA aka the segments
