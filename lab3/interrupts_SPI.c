@@ -12,13 +12,15 @@ Descriptiion: In Lab 3, I will be implementing an LED display and a
 //  PORTB bits 4-6 go to a,b,c inputs of the 74HC138.
 //  PORTB bit 7 goes to the PWM transistor base.
 
-#define F_CPU 16000000 // cpu speed in hertz 
+//#define F_CPU 16000000 // cpu speed in hertz 
 #define TRUE 1
 #define FALSE 0
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include <util/delay.h>
 
 volatile int16_t sum;
+volatile int8_t mode_sel;
 volatile int8_t EC_a_prev;
 volatile int8_t EC_b_prev;
 
@@ -107,11 +109,27 @@ void segsum(uint16_t sum) {
 }//segment_sum
 
 
+int8_t bars() {
+   for(int i = 0; i < 8; i++) {
+      if(chk_buttons(i) == 1) {
+   	 mode_sel = i;
+      }
+   }
+   SPDR = mode_sel;
+   while(bit_is_clear(SPSR, SPIF)){}
+   PORTB |= (1<<PB0);
+   PORTB &= 0xFE;
+   
+return mode_sel;
+}
+
 int8_t read_encoder() {
    uint8_t encoder_value;
    int8_t value = 0x00;
-   uint8_t ec_a[2];
-   uint8_t ec_b[2];
+//   uint8_t ec_a[2];
+//   uint8_t ec_b[2];
+   uint8_t ec_a;
+   uint8_t ec_b;
 
    //Shift_LD_N low
    PORTE &= 0x00;	//Begining of SHIFT_LD_N pulse. It is low here
@@ -121,13 +139,39 @@ int8_t read_encoder() {
 
    encoder_value = spi_read();
    PORTD |= 0x02;	//CLK_INH high
-   
-   ec_a[0] = encoder_value & 0x01;   
+   value = 1;//bars();
+   ec_a = encoder_value & 0x03;  //Only grabs these bits 0000_0011
+   ec_b = encoder_value & 0x0C;  //Only grabs these bits 0000_1100 
+
+   if(ec_a != EC_a_prev){
+      if(!(EC_a_prev) & (ec_a == 0x01)){
+         value = value; //1;
+      }
+      else if(!(EC_a_prev) & (ec_a == 0x03)){
+	 value = -(value); //-1;
+      }
+      else
+	 value = 0;
+   }
+   else {//if(ec_b != EC_b_prev){
+      if(!(EC_b_prev) & (ec_b == 0x01)){
+         value = value; //1;
+      }
+      else if(!(EC_b_prev) & (ec_b == 0x02)){
+	 value = -(value); //-1;
+      }
+      else
+	 value = 0;
+   }
+EC_a_prev = ec_a;
+EC_b_prev = ec_b;
+
+ /*  ec_a[0] = encoder_value & 0x01;   
    ec_a[1] = encoder_value & 0x02;   
    ec_b[0] = encoder_value & 0x04;   
-   ec_b[1] = encoder_value & 0x08;
+   ec_b[1] = encoder_value & 0x08;*/
 
-   if(ec_a[0] != EC_a_prev) {   
+  /* if(ec_a[0] != EC_a_prev) {   
       if(ec_a[0] > EC_a_prev){
 	if(ec_a[0] == ec_a[1]){
     	   value = -1;
@@ -164,7 +208,7 @@ int8_t read_encoder() {
 	value = 0;
    }
 EC_a_prev = ec_a[0];
-EC_b_prev = ec_b[0];
+EC_b_prev = ec_b[0];*/
 
 return value;
 }
@@ -177,20 +221,18 @@ ISR(TIMER0_OVF_vect) {
 	sum = 1023;
 
 }
-//void bars() {
 
-//}
-
-
-uint8_t main() {
+int main() {
    //uint16_t sum = 0x0000;
 
    TIMSK |= (1<<TOIE0);			//enable interrupts
    TCCR0 |= (1<<CS02) | (1<<CS00);	//normal mode, prescale by 128
-  
+ 
+   DDRC |= 0xFF; 
    DDRB |= 0xF0;				//PB4-6 is SEL0-2, PB7 is PWM
    DDRE |= 0x40;				//PE6 is SHIFT_LD_N
    DDRD |= 0x0B;				//PE1 is CLK_INH and PE2 is SRCLK
+   PORTC |= 0x00;
    PORTD |= 0x02;
    PORTE |= 0xFF;
 
@@ -199,13 +241,7 @@ uint8_t main() {
    sei();				//Enable interrupts
    
    while(1){
-
-/*      sum = sum + read_encoder();
-      if(sum>1023)
-	sum = sum % 1023;
-      if(sum<0)
-	sum = 1023;
-*/
+      bars();
       segsum(sum);			//Send sum to be formatted for the 7 seg display
       DDRA = 0xFF;			//Makes PORTA all outputs
 
@@ -215,7 +251,7 @@ uint8_t main() {
 				//the digit to be displayed is in pin 4, 5, and 6 
          _delay_ms(1);		//delay so that the display does not flicker
       }
-
+        PORTB = 0x00;
    }
 return 0;
 }
