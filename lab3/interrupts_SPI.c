@@ -18,8 +18,9 @@ Descriptiion: In Lab 3, I will be implementing an LED display and a
 #include <avr/io.h>
 #include <util/delay.h>
 
-volatile uint8_t EC_a_prev;
-volatile uint8_t EC_b_prev;
+volatile int16_t sum;
+volatile int8_t EC_a_prev;
+volatile int8_t EC_b_prev;
 
 void spi_init(){
    DDRB |= (1<<DDB0) | (1<<DDB1) | (1<<DDB2);	//output mode for SS, MOSI, SCLK 
@@ -105,13 +106,10 @@ void segsum(uint16_t sum) {
    return;
 }//segment_sum
 
-//ISR(TIMER0_OVF_vect) {
 
-//}
-
-uint8_t read_encoder() {
+int8_t read_encoder() {
    uint8_t encoder_value;
-   uint8_t value = 0x00;
+   int8_t value = 0x00;
    uint8_t ec_a[2];
    uint8_t ec_b[2];
 
@@ -171,16 +169,24 @@ EC_b_prev = ec_b[0];
 return value;
 }
 
+ISR(TIMER0_OVF_vect) {
+      sum = sum + read_encoder();
+      if(sum>1023)
+	sum = sum % 1023;
+      if(sum<0)
+	sum = 1023;
+
+}
 //void bars() {
 
 //}
 
 
 uint8_t main() {
-   uint16_t sum = 0x0000;
+   //uint16_t sum = 0x0000;
 
-//   TIMSK |= (1<<TOIE0);			//enable interrupts
-//   TCCR0 |= (1<<CS02) | (1<<CS00);	//normal mode, prescale by 128
+   TIMSK |= (1<<TOIE0);			//enable interrupts
+   TCCR0 |= (1<<CS02) | (1<<CS00);	//normal mode, prescale by 128
   
    DDRB |= 0xF0;				//PB4-6 is SEL0-2, PB7 is PWM
    DDRE |= 0x40;				//PE6 is SHIFT_LD_N
@@ -190,16 +196,16 @@ uint8_t main() {
 
    spi_init();				//Initalize SPI
 
-//   sei();				//Enable interrupts
+   sei();				//Enable interrupts
    
    while(1){
 
-      sum = sum + read_encoder();
+/*      sum = sum + read_encoder();
       if(sum>1023)
 	sum = sum % 1023;
       if(sum<0)
 	sum = 1023;
-
+*/
       segsum(sum);			//Send sum to be formatted for the 7 seg display
       DDRA = 0xFF;			//Makes PORTA all outputs
 
@@ -213,13 +219,6 @@ uint8_t main() {
    }
 return 0;
 }
-
-
-
-
-
-
-
 
 
 
