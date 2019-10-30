@@ -3,31 +3,31 @@ interrupts_SPI.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         0000000e  00800100  00000508  0000059c  2**0
+  0 .data         0000000e  00800100  0000050e  000005a2  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         00000508  00000000  00000000  00000094  2**1
+  1 .text         0000050e  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          00000019  0080010e  0080010e  000005aa  2**0
+  2 .bss          00000019  0080010e  0080010e  000005b0  2**0
                   ALLOC
-  3 .comment      00000030  00000000  00000000  000005aa  2**0
+  3 .comment      00000030  00000000  00000000  000005b0  2**0
                   CONTENTS, READONLY
-  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  000005dc  2**2
+  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  000005e0  2**2
                   CONTENTS, READONLY
-  5 .debug_aranges 00000028  00000000  00000000  00000618  2**0
+  5 .debug_aranges 00000028  00000000  00000000  0000061c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000bdf  00000000  00000000  00000640  2**0
+  6 .debug_info   00000ba6  00000000  00000000  00000644  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 0000094b  00000000  00000000  0000121f  2**0
+  7 .debug_abbrev 0000093a  00000000  00000000  000011ea  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00000365  00000000  00000000  00001b6a  2**0
+  8 .debug_line   0000037d  00000000  00000000  00001b24  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  000000e4  00000000  00000000  00001ed0  2**2
+  9 .debug_frame  000000e4  00000000  00000000  00001ea4  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    0000042a  00000000  00000000  00001fb4  2**0
+ 10 .debug_str    0000041b  00000000  00000000  00001f88  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    0000041d  00000000  00000000  000023de  2**0
+ 11 .debug_loc    0000041d  00000000  00000000  000023a3  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000018  00000000  00000000  000027fb  2**0
+ 12 .debug_ranges 00000018  00000000  00000000  000027c0  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -81,7 +81,7 @@ Disassembly of section .text:
   98:	11 e0       	ldi	r17, 0x01	; 1
   9a:	a0 e0       	ldi	r26, 0x00	; 0
   9c:	b1 e0       	ldi	r27, 0x01	; 1
-  9e:	e8 e0       	ldi	r30, 0x08	; 8
+  9e:	ee e0       	ldi	r30, 0x0E	; 14
   a0:	f5 e0       	ldi	r31, 0x05	; 5
   a2:	00 e0       	ldi	r16, 0x00	; 0
   a4:	0b bf       	out	0x3b, r16	; 59
@@ -105,17 +105,17 @@ Disassembly of section .text:
   bc:	a7 32       	cpi	r26, 0x27	; 39
   be:	b2 07       	cpc	r27, r18
   c0:	e1 f7       	brne	.-8      	; 0xba <.do_clear_bss_loop>
-  c2:	0e 94 14 02 	call	0x428	; 0x428 <main>
-  c6:	0c 94 82 02 	jmp	0x504	; 0x504 <_exit>
+  c2:	0e 94 17 02 	call	0x42e	; 0x42e <main>
+  c6:	0c 94 85 02 	jmp	0x50a	; 0x50a <_exit>
 
 000000ca <__bad_interrupt>:
   ca:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 000000ce <spi_init>:
-volatile int8_t mode_sel = 1;
-volatile int8_t EC_a_prev;
-volatile int8_t EC_b_prev;
-
+Function:
+Description:
+Parameters:
+**********************************************************************/
 void spi_init(){
    DDRB |= (1<<DDB0) | (1<<DDB1) | (1<<DDB2);	//output mode for SS, MOSI, SCLK 
   ce:	87 b3       	in	r24, 0x17	; 23
@@ -131,8 +131,10 @@ void spi_init(){
   dc:	08 95       	ret
 
 000000de <spi_read>:
-}
-
+Function:
+Description:
+Parameters:
+**********************************************************************/
 uint8_t spi_read() {
    SPDR = 0x00;
   de:	1f b8       	out	0x0f, r1	; 15
@@ -208,7 +210,7 @@ void segsum(uint16_t sum) {
  12c:	9c 01       	movw	r18, r24
  12e:	ad ec       	ldi	r26, 0xCD	; 205
  130:	bc ec       	ldi	r27, 0xCC	; 204
- 132:	0e 94 5f 02 	call	0x4be	; 0x4be <__umulhisi3>
+ 132:	0e 94 62 02 	call	0x4c4	; 0x4c4 <__umulhisi3>
  136:	96 95       	lsr	r25
  138:	87 95       	ror	r24
  13a:	96 95       	lsr	r25
@@ -241,7 +243,7 @@ void segsum(uint16_t sum) {
  170:	27 95       	ror	r18
  172:	ab e7       	ldi	r26, 0x7B	; 123
  174:	b4 e1       	ldi	r27, 0x14	; 20
- 176:	0e 94 5f 02 	call	0x4be	; 0x4be <__umulhisi3>
+ 176:	0e 94 62 02 	call	0x4c4	; 0x4c4 <__umulhisi3>
  17a:	fc 01       	movw	r30, r24
  17c:	f6 95       	lsr	r31
  17e:	e7 95       	ror	r30
@@ -256,7 +258,7 @@ void segsum(uint16_t sum) {
  190:	39 0b       	sbc	r19, r25
  192:	ad ec       	ldi	r26, 0xCD	; 205
  194:	bc ec       	ldi	r27, 0xCC	; 204
- 196:	0e 94 5f 02 	call	0x4be	; 0x4be <__umulhisi3>
+ 196:	0e 94 62 02 	call	0x4c4	; 0x4c4 <__umulhisi3>
  19a:	96 95       	lsr	r25
  19c:	87 95       	ror	r24
  19e:	96 95       	lsr	r25
@@ -275,7 +277,7 @@ void segsum(uint16_t sum) {
  1b8:	9f 01       	movw	r18, r30
  1ba:	ad ec       	ldi	r26, 0xCD	; 205
  1bc:	bc ec       	ldi	r27, 0xCC	; 204
- 1be:	0e 94 5f 02 	call	0x4be	; 0x4be <__umulhisi3>
+ 1be:	0e 94 62 02 	call	0x4c4	; 0x4c4 <__umulhisi3>
  1c2:	96 95       	lsr	r25
  1c4:	87 95       	ror	r24
  1c6:	96 95       	lsr	r25
@@ -340,7 +342,7 @@ void segsum(uint16_t sum) {
  222:	27 95       	ror	r18
  224:	a5 ec       	ldi	r26, 0xC5	; 197
  226:	b0 e2       	ldi	r27, 0x20	; 32
- 228:	0e 94 5f 02 	call	0x4be	; 0x4be <__umulhisi3>
+ 228:	0e 94 62 02 	call	0x4c4	; 0x4c4 <__umulhisi3>
  22c:	ac 01       	movw	r20, r24
  22e:	52 95       	swap	r21
  230:	42 95       	swap	r20
@@ -351,7 +353,7 @@ void segsum(uint16_t sum) {
  23a:	9a 01       	movw	r18, r20
  23c:	ad ec       	ldi	r26, 0xCD	; 205
  23e:	bc ec       	ldi	r27, 0xCC	; 204
- 240:	0e 94 5f 02 	call	0x4be	; 0x4be <__umulhisi3>
+ 240:	0e 94 62 02 	call	0x4c4	; 0x4c4 <__umulhisi3>
  244:	96 95       	lsr	r25
  246:	87 95       	ror	r24
  248:	96 95       	lsr	r25
@@ -386,8 +388,10 @@ void segsum(uint16_t sum) {
  278:	08 95       	ret
 
 0000027a <bars>:
-
-
+Function:
+Description:
+Parameters:
+**********************************************************************/
 void bars() {
    DDRA = 0x00;
  27a:	1a ba       	out	0x1a, r1	; 26
@@ -498,13 +502,13 @@ return ;
 	#endif
 
 	__builtin_avr_delay_cycles(__ticks_dc);
- 2f4:	8f e8       	ldi	r24, 0x8F	; 143
- 2f6:	91 e0       	ldi	r25, 0x01	; 1
+ 2f4:	87 ec       	ldi	r24, 0xC7	; 199
+ 2f6:	90 e0       	ldi	r25, 0x00	; 0
  2f8:	01 97       	sbiw	r24, 0x01	; 1
  2fa:	f1 f7       	brne	.-4      	; 0x2f8 <read_encoder+0x8>
  2fc:	00 c0       	rjmp	.+0      	; 0x2fe <read_encoder+0xe>
  2fe:	00 00       	nop
-   _delay_us(100);
+   _delay_us(50);
    PORTE |= 0xFF;	//End of SHIFT_LD_N pulse. back to high
  300:	83 b1       	in	r24, 0x03	; 3
  302:	8f ef       	ldi	r24, 0xFF	; 255
@@ -512,10 +516,10 @@ return ;
    PORTD &= 0x00;	//CLK_INH low
  306:	82 b3       	in	r24, 0x12	; 18
  308:	12 ba       	out	0x12, r1	; 18
-// leading edge smaple , and spi enable 
-   SPSR |= (1<<SPI2X);			//double speed operation  
-}
-
+Function:
+Description:
+Parameters:
+**********************************************************************/
 uint8_t spi_read() {
    SPDR = 0x00;
  30a:	1f b8       	out	0x0f, r1	; 15
@@ -524,7 +528,7 @@ uint8_t spi_read() {
  30e:	fe cf       	rjmp	.-4      	; 0x30c <read_encoder+0x1c>
    return SPDR;
  310:	9f b1       	in	r25, 0x0f	; 15
-   _delay_us(100);
+   _delay_us(50);
    PORTE |= 0xFF;	//End of SHIFT_LD_N pulse. back to high
    PORTD &= 0x00;	//CLK_INH low
 
@@ -589,7 +593,7 @@ return value;
 	 value = 0;
    }
    else {//if(ec_b != EC_b_prev){
-      if(!(EC_b_prev) & (ec_b == 0x01)){
+      if(!(EC_b_prev) && (ec_b == 0x01)){
  35a:	20 91 25 01 	lds	r18, 0x0125	; 0x800125 <EC_b_prev>
  35e:	21 11       	cpse	r18, r1
  360:	02 c0       	rjmp	.+4      	; 0x366 <read_encoder+0x76>
@@ -597,7 +601,7 @@ return value;
  364:	a9 f3       	breq	.-22     	; 0x350 <read_encoder+0x60>
          value = value; //1;
       }
-      else if(!(EC_b_prev) & (ec_b == 0x02)){
+      else if(!(EC_b_prev) && (ec_b == 0x02)){
  366:	20 91 25 01 	lds	r18, 0x0125	; 0x800125 <EC_b_prev>
  36a:	21 11       	cpse	r18, r1
  36c:	f0 cf       	rjmp	.-32     	; 0x34e <read_encoder+0x5e>
@@ -619,7 +623,11 @@ return value;
  37c:	08 95       	ret
 
 0000037e <__vector_16>:
-
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
 ISR(TIMER0_OVF_vect) {
  37e:	1f 92       	push	r1
  380:	0f 92       	push	r0
@@ -663,223 +671,218 @@ ISR(TIMER0_OVF_vect) {
  3d6:	90 91 14 01 	lds	r25, 0x0114	; 0x800114 <sum+0x1>
  3da:	6f ef       	ldi	r22, 0xFF	; 255
  3dc:	73 e0       	ldi	r23, 0x03	; 3
- 3de:	0e 94 4b 02 	call	0x496	; 0x496 <__divmodhi4>
+ 3de:	0e 94 4e 02 	call	0x49c	; 0x49c <__divmodhi4>
  3e2:	90 93 14 01 	sts	0x0114, r25	; 0x800114 <sum+0x1>
  3e6:	80 93 13 01 	sts	0x0113, r24	; 0x800113 <sum>
       if(sum<0)
  3ea:	80 91 13 01 	lds	r24, 0x0113	; 0x800113 <sum>
  3ee:	90 91 14 01 	lds	r25, 0x0114	; 0x800114 <sum+0x1>
  3f2:	97 ff       	sbrs	r25, 7
- 3f4:	06 c0       	rjmp	.+12     	; 0x402 <__LOCK_REGION_LENGTH__+0x2>
-	sum = 1023;
- 3f6:	8f ef       	ldi	r24, 0xFF	; 255
- 3f8:	93 e0       	ldi	r25, 0x03	; 3
- 3fa:	90 93 14 01 	sts	0x0114, r25	; 0x800114 <sum+0x1>
- 3fe:	80 93 13 01 	sts	0x0113, r24	; 0x800113 <sum>
+ 3f4:	09 c0       	rjmp	.+18     	; 0x408 <__LOCK_REGION_LENGTH__+0x8>
+	sum = sum + 1024;
+ 3f6:	80 91 13 01 	lds	r24, 0x0113	; 0x800113 <sum>
+ 3fa:	90 91 14 01 	lds	r25, 0x0114	; 0x800114 <sum+0x1>
+ 3fe:	9c 5f       	subi	r25, 0xFC	; 252
+ 400:	90 93 14 01 	sts	0x0114, r25	; 0x800114 <sum+0x1>
+ 404:	80 93 13 01 	sts	0x0113, r24	; 0x800113 <sum>
 
 }
- 402:	ff 91       	pop	r31
- 404:	ef 91       	pop	r30
- 406:	bf 91       	pop	r27
- 408:	af 91       	pop	r26
- 40a:	9f 91       	pop	r25
- 40c:	8f 91       	pop	r24
- 40e:	7f 91       	pop	r23
- 410:	6f 91       	pop	r22
- 412:	5f 91       	pop	r21
- 414:	4f 91       	pop	r20
- 416:	3f 91       	pop	r19
- 418:	2f 91       	pop	r18
- 41a:	0f 90       	pop	r0
- 41c:	0b be       	out	0x3b, r0	; 59
- 41e:	0f 90       	pop	r0
- 420:	0f be       	out	0x3f, r0	; 63
- 422:	0f 90       	pop	r0
- 424:	1f 90       	pop	r1
- 426:	18 95       	reti
+ 408:	ff 91       	pop	r31
+ 40a:	ef 91       	pop	r30
+ 40c:	bf 91       	pop	r27
+ 40e:	af 91       	pop	r26
+ 410:	9f 91       	pop	r25
+ 412:	8f 91       	pop	r24
+ 414:	7f 91       	pop	r23
+ 416:	6f 91       	pop	r22
+ 418:	5f 91       	pop	r21
+ 41a:	4f 91       	pop	r20
+ 41c:	3f 91       	pop	r19
+ 41e:	2f 91       	pop	r18
+ 420:	0f 90       	pop	r0
+ 422:	0b be       	out	0x3b, r0	; 59
+ 424:	0f 90       	pop	r0
+ 426:	0f be       	out	0x3f, r0	; 63
+ 428:	0f 90       	pop	r0
+ 42a:	1f 90       	pop	r1
+ 42c:	18 95       	reti
 
-00000428 <main>:
-
+0000042e <main>:
+Function:
+Description:
+Parameters:
+**********************************************************************/
 int main() {
-   //uint16_t sum = 0x0000;
-
    TIMSK |= (1<<TOIE0);			//enable interrupts
- 428:	87 b7       	in	r24, 0x37	; 55
- 42a:	81 60       	ori	r24, 0x01	; 1
- 42c:	87 bf       	out	0x37, r24	; 55
+ 42e:	87 b7       	in	r24, 0x37	; 55
+ 430:	81 60       	ori	r24, 0x01	; 1
+ 432:	87 bf       	out	0x37, r24	; 55
    TCCR0 |= (1<<CS02) | (1<<CS00);	//normal mode, prescale by 128
- 42e:	83 b7       	in	r24, 0x33	; 51
- 430:	85 60       	ori	r24, 0x05	; 5
- 432:	83 bf       	out	0x33, r24	; 51
+ 434:	83 b7       	in	r24, 0x33	; 51
+ 436:	85 60       	ori	r24, 0x05	; 5
+ 438:	83 bf       	out	0x33, r24	; 51
  
    DDRC |= 0xFF; 
- 434:	84 b3       	in	r24, 0x14	; 20
- 436:	9f ef       	ldi	r25, 0xFF	; 255
- 438:	94 bb       	out	0x14, r25	; 20
+ 43a:	84 b3       	in	r24, 0x14	; 20
+ 43c:	9f ef       	ldi	r25, 0xFF	; 255
+ 43e:	94 bb       	out	0x14, r25	; 20
    DDRB |= 0xF0;				//PB4-6 is SEL0-2, PB7 is PWM
- 43a:	87 b3       	in	r24, 0x17	; 23
- 43c:	80 6f       	ori	r24, 0xF0	; 240
- 43e:	87 bb       	out	0x17, r24	; 23
+ 440:	87 b3       	in	r24, 0x17	; 23
+ 442:	80 6f       	ori	r24, 0xF0	; 240
+ 444:	87 bb       	out	0x17, r24	; 23
    DDRE |= 0x40;				//PE6 is SHIFT_LD_N
- 440:	16 9a       	sbi	0x02, 6	; 2
+ 446:	16 9a       	sbi	0x02, 6	; 2
    DDRD |= 0x0B;				//PE1 is CLK_INH and PE2 is SRCLK
- 442:	81 b3       	in	r24, 0x11	; 17
- 444:	8b 60       	ori	r24, 0x0B	; 11
- 446:	81 bb       	out	0x11, r24	; 17
+ 448:	81 b3       	in	r24, 0x11	; 17
+ 44a:	8b 60       	ori	r24, 0x0B	; 11
+ 44c:	81 bb       	out	0x11, r24	; 17
    PORTC |= 0x00;
- 448:	85 b3       	in	r24, 0x15	; 21
- 44a:	85 bb       	out	0x15, r24	; 21
+ 44e:	85 b3       	in	r24, 0x15	; 21
+ 450:	85 bb       	out	0x15, r24	; 21
    PORTD |= 0x02;
- 44c:	91 9a       	sbi	0x12, 1	; 18
+ 452:	91 9a       	sbi	0x12, 1	; 18
    PORTE |= 0xFF;
- 44e:	83 b1       	in	r24, 0x03	; 3
- 450:	93 b9       	out	0x03, r25	; 3
-volatile int8_t mode_sel = 1;
-volatile int8_t EC_a_prev;
-volatile int8_t EC_b_prev;
-
+ 454:	83 b1       	in	r24, 0x03	; 3
+ 456:	93 b9       	out	0x03, r25	; 3
+Function:
+Description:
+Parameters:
+**********************************************************************/
 void spi_init(){
    DDRB |= (1<<DDB0) | (1<<DDB1) | (1<<DDB2);	//output mode for SS, MOSI, SCLK 
- 452:	87 b3       	in	r24, 0x17	; 23
- 454:	87 60       	ori	r24, 0x07	; 7
- 456:	87 bb       	out	0x17, r24	; 23
+ 458:	87 b3       	in	r24, 0x17	; 23
+ 45a:	87 60       	ori	r24, 0x07	; 7
+ 45c:	87 bb       	out	0x17, r24	; 23
    SPCR |= (1<<MSTR) | (1<<CPOL) | (1<<CPHA) | (1<<SPE);//master mode, clk low on idle,
- 458:	8d b1       	in	r24, 0x0d	; 13
- 45a:	8c 65       	ori	r24, 0x5C	; 92
- 45c:	8d b9       	out	0x0d, r24	; 13
+ 45e:	8d b1       	in	r24, 0x0d	; 13
+ 460:	8c 65       	ori	r24, 0x5C	; 92
+ 462:	8d b9       	out	0x0d, r24	; 13
 // leading edge smaple , and spi enable 
    SPSR |= (1<<SPI2X);			//double speed operation  
- 45e:	70 9a       	sbi	0x0e, 0	; 14
+ 464:	70 9a       	sbi	0x0e, 0	; 14
    PORTD |= 0x02;
    PORTE |= 0xFF;
 
    spi_init();				//Initalize SPI
 
    sei();				//Enable interrupts
- 460:	78 94       	sei
+ 466:	78 94       	sei
    
    while(1){
       segsum(sum);			//Send sum to be formatted for the 7 seg display
- 462:	80 91 13 01 	lds	r24, 0x0113	; 0x800113 <sum>
- 466:	90 91 14 01 	lds	r25, 0x0114	; 0x800114 <sum+0x1>
- 46a:	0e 94 94 00 	call	0x128	; 0x128 <segsum>
- 46e:	ee e0       	ldi	r30, 0x0E	; 14
- 470:	f1 e0       	ldi	r31, 0x01	; 1
- 472:	80 e0       	ldi	r24, 0x00	; 0
-//      DDRA = 0xFF;			//Makes PORTA all outputs
+ 468:	80 91 13 01 	lds	r24, 0x0113	; 0x800113 <sum>
+ 46c:	90 91 14 01 	lds	r25, 0x0114	; 0x800114 <sum+0x1>
+ 470:	0e 94 94 00 	call	0x128	; 0x128 <segsum>
+ 474:	ee e0       	ldi	r30, 0x0E	; 14
+ 476:	f1 e0       	ldi	r31, 0x01	; 1
+ 478:	80 e0       	ldi	r24, 0x00	; 0
 
       for( int j = 0; j < 5; j++) {	//cycles through each of the five digits
          PORTA = segment_data[j];	//Writes the segment data to PORTA aka the segments
- 474:	91 91       	ld	r25, Z+
- 476:	9b bb       	out	0x1b, r25	; 27
+ 47a:	91 91       	ld	r25, Z+
+ 47c:	9b bb       	out	0x1b, r25	; 27
          PORTB = j << 4;		//J is bound 0-4 and that value is shifted left 4 so that 
- 478:	98 2f       	mov	r25, r24
- 47a:	92 95       	swap	r25
- 47c:	90 7f       	andi	r25, 0xF0	; 240
- 47e:	98 bb       	out	0x18, r25	; 24
-	#else
-		//round up by default
-		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
-	#endif
-
-	__builtin_avr_delay_cycles(__ticks_dc);
- 480:	af e9       	ldi	r26, 0x9F	; 159
- 482:	bf e0       	ldi	r27, 0x0F	; 15
- 484:	11 97       	sbiw	r26, 0x01	; 1
- 486:	f1 f7       	brne	.-4      	; 0x484 <main+0x5c>
- 488:	00 c0       	rjmp	.+0      	; 0x48a <main+0x62>
- 48a:	00 00       	nop
- 48c:	8f 5f       	subi	r24, 0xFF	; 255
+ 47e:	98 2f       	mov	r25, r24
+ 480:	92 95       	swap	r25
+ 482:	90 7f       	andi	r25, 0xF0	; 240
+ 484:	98 bb       	out	0x18, r25	; 24
+ 486:	af ea       	ldi	r26, 0xAF	; 175
+ 488:	b4 e0       	ldi	r27, 0x04	; 4
+ 48a:	11 97       	sbiw	r26, 0x01	; 1
+ 48c:	f1 f7       	brne	.-4      	; 0x48a <main+0x5c>
+ 48e:	00 c0       	rjmp	.+0      	; 0x490 <main+0x62>
+ 490:	00 00       	nop
+ 492:	8f 5f       	subi	r24, 0xFF	; 255
+   sei();				//Enable interrupts
    
    while(1){
       segsum(sum);			//Send sum to be formatted for the 7 seg display
-//      DDRA = 0xFF;			//Makes PORTA all outputs
 
       for( int j = 0; j < 5; j++) {	//cycles through each of the five digits
- 48e:	85 30       	cpi	r24, 0x05	; 5
- 490:	89 f7       	brne	.-30     	; 0x474 <main+0x4c>
+ 494:	85 30       	cpi	r24, 0x05	; 5
+ 496:	89 f7       	brne	.-30     	; 0x47a <main+0x4c>
          PORTA = segment_data[j];	//Writes the segment data to PORTA aka the segments
          PORTB = j << 4;		//J is bound 0-4 and that value is shifted left 4 so that 
 				//the digit to be displayed is in pin 4, 5, and 6 
-         _delay_ms(1);		//delay so that the display does not flicker
+         _delay_us(300);		//delay so that the display does not flicker
       }
         PORTB = 0x00;
- 492:	18 ba       	out	0x18, r1	; 24
+ 498:	18 ba       	out	0x18, r1	; 24
    }
- 494:	e6 cf       	rjmp	.-52     	; 0x462 <main+0x3a>
+ 49a:	e6 cf       	rjmp	.-52     	; 0x468 <main+0x3a>
 
-00000496 <__divmodhi4>:
- 496:	97 fb       	bst	r25, 7
- 498:	07 2e       	mov	r0, r23
- 49a:	16 f4       	brtc	.+4      	; 0x4a0 <__divmodhi4+0xa>
- 49c:	00 94       	com	r0
- 49e:	07 d0       	rcall	.+14     	; 0x4ae <__divmodhi4_neg1>
- 4a0:	77 fd       	sbrc	r23, 7
- 4a2:	09 d0       	rcall	.+18     	; 0x4b6 <__divmodhi4_neg2>
- 4a4:	0e 94 6e 02 	call	0x4dc	; 0x4dc <__udivmodhi4>
- 4a8:	07 fc       	sbrc	r0, 7
- 4aa:	05 d0       	rcall	.+10     	; 0x4b6 <__divmodhi4_neg2>
- 4ac:	3e f4       	brtc	.+14     	; 0x4bc <__divmodhi4_exit>
+0000049c <__divmodhi4>:
+ 49c:	97 fb       	bst	r25, 7
+ 49e:	07 2e       	mov	r0, r23
+ 4a0:	16 f4       	brtc	.+4      	; 0x4a6 <__divmodhi4+0xa>
+ 4a2:	00 94       	com	r0
+ 4a4:	07 d0       	rcall	.+14     	; 0x4b4 <__divmodhi4_neg1>
+ 4a6:	77 fd       	sbrc	r23, 7
+ 4a8:	09 d0       	rcall	.+18     	; 0x4bc <__divmodhi4_neg2>
+ 4aa:	0e 94 71 02 	call	0x4e2	; 0x4e2 <__udivmodhi4>
+ 4ae:	07 fc       	sbrc	r0, 7
+ 4b0:	05 d0       	rcall	.+10     	; 0x4bc <__divmodhi4_neg2>
+ 4b2:	3e f4       	brtc	.+14     	; 0x4c2 <__divmodhi4_exit>
 
-000004ae <__divmodhi4_neg1>:
- 4ae:	90 95       	com	r25
- 4b0:	81 95       	neg	r24
- 4b2:	9f 4f       	sbci	r25, 0xFF	; 255
- 4b4:	08 95       	ret
+000004b4 <__divmodhi4_neg1>:
+ 4b4:	90 95       	com	r25
+ 4b6:	81 95       	neg	r24
+ 4b8:	9f 4f       	sbci	r25, 0xFF	; 255
+ 4ba:	08 95       	ret
 
-000004b6 <__divmodhi4_neg2>:
- 4b6:	70 95       	com	r23
- 4b8:	61 95       	neg	r22
- 4ba:	7f 4f       	sbci	r23, 0xFF	; 255
+000004bc <__divmodhi4_neg2>:
+ 4bc:	70 95       	com	r23
+ 4be:	61 95       	neg	r22
+ 4c0:	7f 4f       	sbci	r23, 0xFF	; 255
 
-000004bc <__divmodhi4_exit>:
- 4bc:	08 95       	ret
+000004c2 <__divmodhi4_exit>:
+ 4c2:	08 95       	ret
 
-000004be <__umulhisi3>:
- 4be:	a2 9f       	mul	r26, r18
- 4c0:	b0 01       	movw	r22, r0
- 4c2:	b3 9f       	mul	r27, r19
- 4c4:	c0 01       	movw	r24, r0
- 4c6:	a3 9f       	mul	r26, r19
- 4c8:	70 0d       	add	r23, r0
- 4ca:	81 1d       	adc	r24, r1
- 4cc:	11 24       	eor	r1, r1
- 4ce:	91 1d       	adc	r25, r1
- 4d0:	b2 9f       	mul	r27, r18
- 4d2:	70 0d       	add	r23, r0
- 4d4:	81 1d       	adc	r24, r1
- 4d6:	11 24       	eor	r1, r1
- 4d8:	91 1d       	adc	r25, r1
- 4da:	08 95       	ret
+000004c4 <__umulhisi3>:
+ 4c4:	a2 9f       	mul	r26, r18
+ 4c6:	b0 01       	movw	r22, r0
+ 4c8:	b3 9f       	mul	r27, r19
+ 4ca:	c0 01       	movw	r24, r0
+ 4cc:	a3 9f       	mul	r26, r19
+ 4ce:	70 0d       	add	r23, r0
+ 4d0:	81 1d       	adc	r24, r1
+ 4d2:	11 24       	eor	r1, r1
+ 4d4:	91 1d       	adc	r25, r1
+ 4d6:	b2 9f       	mul	r27, r18
+ 4d8:	70 0d       	add	r23, r0
+ 4da:	81 1d       	adc	r24, r1
+ 4dc:	11 24       	eor	r1, r1
+ 4de:	91 1d       	adc	r25, r1
+ 4e0:	08 95       	ret
 
-000004dc <__udivmodhi4>:
- 4dc:	aa 1b       	sub	r26, r26
- 4de:	bb 1b       	sub	r27, r27
- 4e0:	51 e1       	ldi	r21, 0x11	; 17
- 4e2:	07 c0       	rjmp	.+14     	; 0x4f2 <__udivmodhi4_ep>
+000004e2 <__udivmodhi4>:
+ 4e2:	aa 1b       	sub	r26, r26
+ 4e4:	bb 1b       	sub	r27, r27
+ 4e6:	51 e1       	ldi	r21, 0x11	; 17
+ 4e8:	07 c0       	rjmp	.+14     	; 0x4f8 <__udivmodhi4_ep>
 
-000004e4 <__udivmodhi4_loop>:
- 4e4:	aa 1f       	adc	r26, r26
- 4e6:	bb 1f       	adc	r27, r27
- 4e8:	a6 17       	cp	r26, r22
- 4ea:	b7 07       	cpc	r27, r23
- 4ec:	10 f0       	brcs	.+4      	; 0x4f2 <__udivmodhi4_ep>
- 4ee:	a6 1b       	sub	r26, r22
- 4f0:	b7 0b       	sbc	r27, r23
+000004ea <__udivmodhi4_loop>:
+ 4ea:	aa 1f       	adc	r26, r26
+ 4ec:	bb 1f       	adc	r27, r27
+ 4ee:	a6 17       	cp	r26, r22
+ 4f0:	b7 07       	cpc	r27, r23
+ 4f2:	10 f0       	brcs	.+4      	; 0x4f8 <__udivmodhi4_ep>
+ 4f4:	a6 1b       	sub	r26, r22
+ 4f6:	b7 0b       	sbc	r27, r23
 
-000004f2 <__udivmodhi4_ep>:
- 4f2:	88 1f       	adc	r24, r24
- 4f4:	99 1f       	adc	r25, r25
- 4f6:	5a 95       	dec	r21
- 4f8:	a9 f7       	brne	.-22     	; 0x4e4 <__udivmodhi4_loop>
- 4fa:	80 95       	com	r24
- 4fc:	90 95       	com	r25
- 4fe:	bc 01       	movw	r22, r24
- 500:	cd 01       	movw	r24, r26
- 502:	08 95       	ret
+000004f8 <__udivmodhi4_ep>:
+ 4f8:	88 1f       	adc	r24, r24
+ 4fa:	99 1f       	adc	r25, r25
+ 4fc:	5a 95       	dec	r21
+ 4fe:	a9 f7       	brne	.-22     	; 0x4ea <__udivmodhi4_loop>
+ 500:	80 95       	com	r24
+ 502:	90 95       	com	r25
+ 504:	bc 01       	movw	r22, r24
+ 506:	cd 01       	movw	r24, r26
+ 508:	08 95       	ret
 
-00000504 <_exit>:
- 504:	f8 94       	cli
+0000050a <_exit>:
+ 50a:	f8 94       	cli
 
-00000506 <__stop_program>:
- 506:	ff cf       	rjmp	.-2      	; 0x506 <__stop_program>
+0000050c <__stop_program>:
+ 50c:	ff cf       	rjmp	.-2      	; 0x50c <__stop_program>

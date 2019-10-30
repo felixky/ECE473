@@ -24,6 +24,11 @@ volatile int8_t mode_sel = 1;
 volatile int8_t EC_a_prev;
 volatile int8_t EC_b_prev;
 
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
 void spi_init(){
    DDRB |= (1<<DDB0) | (1<<DDB1) | (1<<DDB2);	//output mode for SS, MOSI, SCLK 
    SPCR |= (1<<MSTR) | (1<<CPOL) | (1<<CPHA) | (1<<SPE);//master mode, clk low on idle,
@@ -31,16 +36,31 @@ void spi_init(){
    SPSR |= (1<<SPI2X);			//double speed operation  
 }
 
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
 uint8_t spi_read() {
    SPDR = 0x00;
    while(bit_is_clear(SPSR, SPIF)){}
    return SPDR;
 }
 
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
 //holds data to be sent to the segments. logic zero turns segment on
 uint8_t segment_data[5] = {
 }; 
 
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
 //decimal to 7-segment LED display encodings, logic "0" turns on segment
 // 0x(DP)(G)(F)(E)(D)(C)(B)(A), active low
 uint8_t dec_to_7seg[12] = {
@@ -109,6 +129,11 @@ void segsum(uint16_t sum) {
 }//segment_sum
 
 
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
 void bars() {
    DDRA = 0x00;
    PORTA = 0xFF;
@@ -129,6 +154,11 @@ void bars() {
 return ;
 }
 
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
 int8_t read_encoder() {
    uint8_t encoder_value;
    int8_t value = 0x00;
@@ -137,7 +167,7 @@ int8_t read_encoder() {
 
    //Shift_LD_N low
    PORTE &= 0x00;	//Begining of SHIFT_LD_N pulse. It is low here
-   _delay_us(100);
+   _delay_us(50);
    PORTE |= 0xFF;	//End of SHIFT_LD_N pulse. back to high
    PORTD &= 0x00;	//CLK_INH low
 
@@ -159,10 +189,10 @@ int8_t read_encoder() {
 	 value = 0;
    }
    else {//if(ec_b != EC_b_prev){
-      if(!(EC_b_prev) & (ec_b == 0x01)){
+      if(!(EC_b_prev) && (ec_b == 0x01)){
          value = value; //1;
       }
-      else if(!(EC_b_prev) & (ec_b == 0x02)){
+      else if(!(EC_b_prev) && (ec_b == 0x02)){
 	 value = -(value); //-1;
       }
       else
@@ -174,19 +204,27 @@ EC_b_prev = ec_b;
 return value;
 }
 
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
 ISR(TIMER0_OVF_vect) {
       bars();      
       sum = sum + read_encoder();
       if(sum>1023)
 	sum = sum % 1023;
       if(sum<0)
-	sum = 1023;
+	sum = sum + 1024;
 
 }
 
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
 int main() {
-   //uint16_t sum = 0x0000;
-
    TIMSK |= (1<<TOIE0);			//enable interrupts
    TCCR0 |= (1<<CS02) | (1<<CS00);	//normal mode, prescale by 128
  
@@ -204,13 +242,12 @@ int main() {
    
    while(1){
       segsum(sum);			//Send sum to be formatted for the 7 seg display
-//      DDRA = 0xFF;			//Makes PORTA all outputs
 
       for( int j = 0; j < 5; j++) {	//cycles through each of the five digits
          PORTA = segment_data[j];	//Writes the segment data to PORTA aka the segments
          PORTB = j << 4;		//J is bound 0-4 and that value is shifted left 4 so that 
 				//the digit to be displayed is in pin 4, 5, and 6 
-         _delay_ms(1);		//delay so that the display does not flicker
+         _delay_us(300);		//delay so that the display does not flicker
       }
         PORTB = 0x00;
    }
