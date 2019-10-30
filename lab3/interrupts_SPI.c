@@ -19,13 +19,15 @@ Descriptiion: In Lab 3, I will be implementing an LED display and a
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
+volatile uint16_t mult = 0;
 volatile int16_t sum = 0;
-volatile int8_t mode_sel = 1;
+volatile int16_t mode_sel = 1;
+volatile int16_t prev_mode = 5;
 volatile int8_t EC_a_prev;
 volatile int8_t EC_b_prev;
 
 /**********************************************************************
-Function:
+Function: 
 Description:
 Parameters:
 **********************************************************************/
@@ -138,13 +140,43 @@ void bars() {
    DDRA = 0x00;
    PORTA = 0xFF;
    PORTB |= PINB | 0x70;
-   //_delay_us(1);
 
    for(int i = 0; i < 8; i++) {
       if(chk_buttons(i) == 1) {
-   	 mode_sel = (i+1);
+   	 mult = (1<<i);
       }
    }
+   if(mult > 4) {
+      mult = 0;
+   }
+   
+   switch(mult) {
+      case 1:
+	 if((mode_sel ^ mult) == 0){
+	    mode_sel = 0;
+	 }
+	 else
+	    mode_sel = 1;
+         break;
+      case 2:
+	 if((mode_sel ^ mult) == 0){
+	    mode_sel = 0;
+	 }
+	 else
+	    mode_sel = 2;
+         break;
+      case 4:
+	 if((mode_sel ^ mult) == 0){
+	    mode_sel = 0;
+	 }
+	 else
+	    mode_sel = 4;
+         break;
+      default:
+	 mode_sel = mode_sel;
+   }   
+   mult = 0;
+
    DDRA = 0xFF;
    SPDR = mode_sel;
    while(bit_is_clear(SPSR, SPIF)){}
@@ -215,7 +247,7 @@ ISR(TIMER0_OVF_vect) {
       if(sum>1023)
 	sum = sum % 1023;
       if(sum<0)
-	sum = sum + 1024;
+	sum = 1023;
 
 }
 
@@ -249,11 +281,7 @@ int main() {
 				//the digit to be displayed is in pin 4, 5, and 6 
          _delay_us(300);		//delay so that the display does not flicker
       }
-        PORTB = 0x00;
+       // PORTB = 0x00;
    }
 return 0;
 }
-
-
-
-
