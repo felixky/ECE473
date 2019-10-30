@@ -81,11 +81,11 @@ uint8_t dec_to_7seg[18] = {
   0b10000000,	//8
   0b10010000,	//9
   0b10001000,   //A
-  0b11100000,   //b
-  0b10110001,	//C
-  0b11000010,	//d
-  0b10110000,	//E
-  0b10111000,   //F
+  0b10000011,   //b
+  0b11000110,	//C
+  0b10100001,	//d
+  0b10000110,	//E
+  0b10001110,   //F
   0b11111111,	//All segments off
   0b00000000,	//All segments are on
  
@@ -121,27 +121,43 @@ void segsum(uint16_t sum) {
   //break up decimal sum into 4 digit-segments
   //This block of code takes in the sum and finds the 0-9 value for each of the four led digits  
   if(hex) {
+//Integer division and mod are used to convert decimal to hex
+     d0 = ((sum%256)%16);//1s digit
+     d1 = (sum %256)/16; //10s digit
+     d2 = sum/256;	 //100s digit. Integer division
+     d3 = 0;		 //1000s digit. 1023 will never need this digit
 
+     segment_data[0] = dec_to_7seg[d0]; 
+     segment_data[1] = dec_to_7seg[d1];
+     segment_data[2] = 0xFF;
+     segment_data[3] = dec_to_7seg[d2];
+     segment_data[4] = 0xFF;
+     
+     if(sum < 0x100)	//Compares the sum to 255
+	segment_data[3] = 0xFF;
+     if(sum < 0x10)	//Compares the sum to 10
+	segment_data[1] = 0xFF;
+     
   }
   else {
-  d0 = (sum % 10);		//1's digit
-  d1 = (((sum % 100) / 10) % 10);	//10's digit
-  d2 = (sum / 100) % 10;		//100's digit
-  d3 = (sum / 1000) % 10;		//1000's digit
+     d0 = (sum % 10);		//1's digit
+     d1 = (((sum % 100) / 10) % 10);	//10's digit
+     d2 = (sum / 100) % 10;		//100's digit
+     d3 = (sum / 1000) % 10;		//1000's digit
 
   //This block changes the decimal from just above into 8-bits that can be displayed on the segments 
-  segment_data[0] = dec_to_7seg[d0]; 
-  segment_data[1] = dec_to_7seg[d1];
-  segment_data[2] = 0xFF;
-  segment_data[3] = dec_to_7seg[d2];
-  segment_data[4] = dec_to_7seg[d3];
+     segment_data[0] = dec_to_7seg[d0]; 
+     segment_data[1] = dec_to_7seg[d1];
+     segment_data[2] = 0xFF;
+     segment_data[3] = dec_to_7seg[d2];
+     segment_data[4] = dec_to_7seg[d3];
 
   //blank out leading zero digits and determine number of digits
-    if(sum < 0x3E8)	//Compares the sum to 1000
+     if(sum < 0x3E8)	//Compares the sum to 1000
 	segment_data[4] = 0xFF;
-    if(sum < 0x64)	//Compares the sum to 100
+     if(sum < 0x64)	//Compares the sum to 100
 	segment_data[3] = 0xFF;
-    if(sum < 0xA)	//Compares the sum to 10
+     if(sum < 0xA)	//Compares the sum to 10
 	segment_data[1] = 0xFF;
   }
    return;
