@@ -1,0 +1,1131 @@
+
+interrupts_SPI.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .data         00000016  00800100  00000666  000006fa  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         00000666  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .bss          0000001c  00800116  00800116  00000710  2**0
+                  ALLOC
+  3 .comment      00000030  00000000  00000000  00000710  2**0
+                  CONTENTS, READONLY
+  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000740  2**2
+                  CONTENTS, READONLY
+  5 .debug_aranges 00000028  00000000  00000000  0000077c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_info   00000c86  00000000  00000000  000007a4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_abbrev 000009bd  00000000  00000000  0000142a  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_line   00000427  00000000  00000000  00001de7  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_frame  000000f4  00000000  00000000  00002210  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_str    0000042a  00000000  00000000  00002304  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_loc    00000510  00000000  00000000  0000272e  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_ranges 00000060  00000000  00000000  00002c3e  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 46 00 	jmp	0x8c	; 0x8c <__ctors_end>
+   4:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+   8:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+   c:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  10:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  14:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  18:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  1c:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  20:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  24:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  28:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  2c:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  30:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  34:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  38:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  3c:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  40:	0c 94 4e 02 	jmp	0x49c	; 0x49c <__vector_16>
+  44:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  48:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  4c:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  50:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  54:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  58:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  5c:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  60:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  64:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  68:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  6c:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  70:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  74:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  78:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  7c:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  80:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  84:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  88:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+
+0000008c <__ctors_end>:
+  8c:	11 24       	eor	r1, r1
+  8e:	1f be       	out	0x3f, r1	; 63
+  90:	cf ef       	ldi	r28, 0xFF	; 255
+  92:	d0 e1       	ldi	r29, 0x10	; 16
+  94:	de bf       	out	0x3e, r29	; 62
+  96:	cd bf       	out	0x3d, r28	; 61
+
+00000098 <__do_copy_data>:
+  98:	11 e0       	ldi	r17, 0x01	; 1
+  9a:	a0 e0       	ldi	r26, 0x00	; 0
+  9c:	b1 e0       	ldi	r27, 0x01	; 1
+  9e:	e6 e6       	ldi	r30, 0x66	; 102
+  a0:	f6 e0       	ldi	r31, 0x06	; 6
+  a2:	00 e0       	ldi	r16, 0x00	; 0
+  a4:	0b bf       	out	0x3b, r16	; 59
+  a6:	02 c0       	rjmp	.+4      	; 0xac <__do_copy_data+0x14>
+  a8:	07 90       	elpm	r0, Z+
+  aa:	0d 92       	st	X+, r0
+  ac:	a6 31       	cpi	r26, 0x16	; 22
+  ae:	b1 07       	cpc	r27, r17
+  b0:	d9 f7       	brne	.-10     	; 0xa8 <__do_copy_data+0x10>
+
+000000b2 <__do_clear_bss>:
+  b2:	21 e0       	ldi	r18, 0x01	; 1
+  b4:	a6 e1       	ldi	r26, 0x16	; 22
+  b6:	b1 e0       	ldi	r27, 0x01	; 1
+  b8:	01 c0       	rjmp	.+2      	; 0xbc <.do_clear_bss_start>
+
+000000ba <.do_clear_bss_loop>:
+  ba:	1d 92       	st	X+, r1
+
+000000bc <.do_clear_bss_start>:
+  bc:	a2 33       	cpi	r26, 0x32	; 50
+  be:	b2 07       	cpc	r27, r18
+  c0:	e1 f7       	brne	.-8      	; 0xba <.do_clear_bss_loop>
+  c2:	0e 94 a3 02 	call	0x546	; 0x546 <main>
+  c6:	0c 94 31 03 	jmp	0x662	; 0x662 <_exit>
+
+000000ca <__bad_interrupt>:
+  ca:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+000000ce <segsum.part.0>:
+Description: takes a 16-bit binary input value and places the appropriate equivalent 
+	4 digit BCD segment code in the array segment_data for display. array is 
+	loaded at exit as:  |digit3|digit2|colon|digit1|digit0|
+Parameters: A sum that willl be decoded
+************************************************************************************/
+void segsum(uint16_t sum) {
+  ce:	cf 93       	push	r28
+  d0:	ac 01       	movw	r20, r24
+  d1 = (((sum % 100) / 10) % 10);	//10's digit
+  d2 = (sum / 100) % 10;		//100's digit
+  d3 = (sum / 1000) % 10;		//1000's digit
+
+  //This block changes the decimal from just above into 8-bits that can be displayed on the segments 
+  segment_data[0] = dec_to_7seg[d0]; 
+  d2:	9c 01       	movw	r18, r24
+  d4:	ad ec       	ldi	r26, 0xCD	; 205
+  d6:	bc ec       	ldi	r27, 0xCC	; 204
+  d8:	0e 94 0e 03 	call	0x61c	; 0x61c <__umulhisi3>
+  dc:	96 95       	lsr	r25
+  de:	87 95       	ror	r24
+  e0:	96 95       	lsr	r25
+  e2:	87 95       	ror	r24
+  e4:	96 95       	lsr	r25
+  e6:	87 95       	ror	r24
+  e8:	9c 01       	movw	r18, r24
+  ea:	22 0f       	add	r18, r18
+  ec:	33 1f       	adc	r19, r19
+  ee:	88 0f       	add	r24, r24
+  f0:	99 1f       	adc	r25, r25
+  f2:	88 0f       	add	r24, r24
+  f4:	99 1f       	adc	r25, r25
+  f6:	88 0f       	add	r24, r24
+  f8:	99 1f       	adc	r25, r25
+  fa:	82 0f       	add	r24, r18
+  fc:	93 1f       	adc	r25, r19
+  fe:	fa 01       	movw	r30, r20
+ 100:	e8 1b       	sub	r30, r24
+ 102:	f9 0b       	sbc	r31, r25
+ 104:	e0 50       	subi	r30, 0x00	; 0
+ 106:	ff 4f       	sbci	r31, 0xFF	; 255
+ 108:	80 81       	ld	r24, Z
+ 10a:	80 93 16 01 	sts	0x0116, r24	; 0x800116 <__data_end>
+  segment_data[1] = dec_to_7seg[d1];
+ 10e:	9a 01       	movw	r18, r20
+ 110:	36 95       	lsr	r19
+ 112:	27 95       	ror	r18
+ 114:	36 95       	lsr	r19
+ 116:	27 95       	ror	r18
+ 118:	ab e7       	ldi	r26, 0x7B	; 123
+ 11a:	b4 e1       	ldi	r27, 0x14	; 20
+ 11c:	0e 94 0e 03 	call	0x61c	; 0x61c <__umulhisi3>
+ 120:	fc 01       	movw	r30, r24
+ 122:	f6 95       	lsr	r31
+ 124:	e7 95       	ror	r30
+ 126:	24 e6       	ldi	r18, 0x64	; 100
+ 128:	2e 9f       	mul	r18, r30
+ 12a:	c0 01       	movw	r24, r0
+ 12c:	2f 9f       	mul	r18, r31
+ 12e:	90 0d       	add	r25, r0
+ 130:	11 24       	eor	r1, r1
+ 132:	9a 01       	movw	r18, r20
+ 134:	28 1b       	sub	r18, r24
+ 136:	39 0b       	sbc	r19, r25
+ 138:	ad ec       	ldi	r26, 0xCD	; 205
+ 13a:	bc ec       	ldi	r27, 0xCC	; 204
+ 13c:	0e 94 0e 03 	call	0x61c	; 0x61c <__umulhisi3>
+ 140:	96 95       	lsr	r25
+ 142:	87 95       	ror	r24
+ 144:	96 95       	lsr	r25
+ 146:	87 95       	ror	r24
+ 148:	96 95       	lsr	r25
+ 14a:	87 95       	ror	r24
+ 14c:	dc 01       	movw	r26, r24
+ 14e:	a0 50       	subi	r26, 0x00	; 0
+ 150:	bf 4f       	sbci	r27, 0xFF	; 255
+ 152:	8c 91       	ld	r24, X
+ 154:	80 93 17 01 	sts	0x0117, r24	; 0x800117 <__data_end+0x1>
+  segment_data[2] = 0xFF;
+ 158:	cf ef       	ldi	r28, 0xFF	; 255
+ 15a:	c0 93 18 01 	sts	0x0118, r28	; 0x800118 <__data_end+0x2>
+  segment_data[3] = dec_to_7seg[d2];
+ 15e:	9f 01       	movw	r18, r30
+ 160:	ad ec       	ldi	r26, 0xCD	; 205
+ 162:	bc ec       	ldi	r27, 0xCC	; 204
+ 164:	0e 94 0e 03 	call	0x61c	; 0x61c <__umulhisi3>
+ 168:	96 95       	lsr	r25
+ 16a:	87 95       	ror	r24
+ 16c:	96 95       	lsr	r25
+ 16e:	87 95       	ror	r24
+ 170:	96 95       	lsr	r25
+ 172:	87 95       	ror	r24
+ 174:	9c 01       	movw	r18, r24
+ 176:	22 0f       	add	r18, r18
+ 178:	33 1f       	adc	r19, r19
+ 17a:	88 0f       	add	r24, r24
+ 17c:	99 1f       	adc	r25, r25
+ 17e:	88 0f       	add	r24, r24
+ 180:	99 1f       	adc	r25, r25
+ 182:	88 0f       	add	r24, r24
+ 184:	99 1f       	adc	r25, r25
+ 186:	82 0f       	add	r24, r18
+ 188:	93 1f       	adc	r25, r19
+ 18a:	e8 1b       	sub	r30, r24
+ 18c:	f9 0b       	sbc	r31, r25
+ 18e:	e0 50       	subi	r30, 0x00	; 0
+ 190:	ff 4f       	sbci	r31, 0xFF	; 255
+ 192:	80 81       	ld	r24, Z
+ 194:	80 93 19 01 	sts	0x0119, r24	; 0x800119 <__data_end+0x3>
+  segment_data[4] = dec_to_7seg[d3];
+
+  //blank out leading zero digits and determine number of digits
+    if(sum < 0x3E8)	//Compares the sum to 1000
+ 198:	48 3e       	cpi	r20, 0xE8	; 232
+ 19a:	83 e0       	ldi	r24, 0x03	; 3
+ 19c:	58 07       	cpc	r21, r24
+ 19e:	70 f4       	brcc	.+28     	; 0x1bc <segsum.part.0+0xee>
+	segment_data[4] = 0xFF;
+ 1a0:	c0 93 1a 01 	sts	0x011A, r28	; 0x80011a <__data_end+0x4>
+    if(sum < 0x64)	//Compares the sum to 100
+ 1a4:	44 36       	cpi	r20, 0x64	; 100
+ 1a6:	51 05       	cpc	r21, r1
+ 1a8:	38 f4       	brcc	.+14     	; 0x1b8 <segsum.part.0+0xea>
+	segment_data[3] = 0xFF;
+ 1aa:	c0 93 19 01 	sts	0x0119, r28	; 0x800119 <__data_end+0x3>
+    if(sum < 0xA)	//Compares the sum to 10
+ 1ae:	4a 30       	cpi	r20, 0x0A	; 10
+ 1b0:	51 05       	cpc	r21, r1
+ 1b2:	10 f4       	brcc	.+4      	; 0x1b8 <segsum.part.0+0xea>
+	segment_data[1] = 0xFF;
+ 1b4:	c0 93 17 01 	sts	0x0117, r28	; 0x800117 <__data_end+0x1>
+  }
+   return;
+}//segment_sum
+ 1b8:	cf 91       	pop	r28
+ 1ba:	08 95       	ret
+  //This block changes the decimal from just above into 8-bits that can be displayed on the segments 
+  segment_data[0] = dec_to_7seg[d0]; 
+  segment_data[1] = dec_to_7seg[d1];
+  segment_data[2] = 0xFF;
+  segment_data[3] = dec_to_7seg[d2];
+  segment_data[4] = dec_to_7seg[d3];
+ 1bc:	9a 01       	movw	r18, r20
+ 1be:	36 95       	lsr	r19
+ 1c0:	27 95       	ror	r18
+ 1c2:	36 95       	lsr	r19
+ 1c4:	27 95       	ror	r18
+ 1c6:	36 95       	lsr	r19
+ 1c8:	27 95       	ror	r18
+ 1ca:	a5 ec       	ldi	r26, 0xC5	; 197
+ 1cc:	b0 e2       	ldi	r27, 0x20	; 32
+ 1ce:	0e 94 0e 03 	call	0x61c	; 0x61c <__umulhisi3>
+ 1d2:	ac 01       	movw	r20, r24
+ 1d4:	52 95       	swap	r21
+ 1d6:	42 95       	swap	r20
+ 1d8:	4f 70       	andi	r20, 0x0F	; 15
+ 1da:	45 27       	eor	r20, r21
+ 1dc:	5f 70       	andi	r21, 0x0F	; 15
+ 1de:	45 27       	eor	r20, r21
+ 1e0:	9a 01       	movw	r18, r20
+ 1e2:	ad ec       	ldi	r26, 0xCD	; 205
+ 1e4:	bc ec       	ldi	r27, 0xCC	; 204
+ 1e6:	0e 94 0e 03 	call	0x61c	; 0x61c <__umulhisi3>
+ 1ea:	96 95       	lsr	r25
+ 1ec:	87 95       	ror	r24
+ 1ee:	96 95       	lsr	r25
+ 1f0:	87 95       	ror	r24
+ 1f2:	96 95       	lsr	r25
+ 1f4:	87 95       	ror	r24
+ 1f6:	9c 01       	movw	r18, r24
+ 1f8:	22 0f       	add	r18, r18
+ 1fa:	33 1f       	adc	r19, r19
+ 1fc:	88 0f       	add	r24, r24
+ 1fe:	99 1f       	adc	r25, r25
+ 200:	88 0f       	add	r24, r24
+ 202:	99 1f       	adc	r25, r25
+ 204:	88 0f       	add	r24, r24
+ 206:	99 1f       	adc	r25, r25
+ 208:	82 0f       	add	r24, r18
+ 20a:	93 1f       	adc	r25, r19
+ 20c:	48 1b       	sub	r20, r24
+ 20e:	59 0b       	sbc	r21, r25
+ 210:	fa 01       	movw	r30, r20
+ 212:	e0 50       	subi	r30, 0x00	; 0
+ 214:	ff 4f       	sbci	r31, 0xFF	; 255
+ 216:	80 81       	ld	r24, Z
+ 218:	80 93 1a 01 	sts	0x011A, r24	; 0x80011a <__data_end+0x4>
+	segment_data[3] = 0xFF;
+    if(sum < 0xA)	//Compares the sum to 10
+	segment_data[1] = 0xFF;
+  }
+   return;
+}//segment_sum
+ 21c:	cf 91       	pop	r28
+ 21e:	08 95       	ret
+
+00000220 <spi_init>:
+Description: Initialization of the serial port interface. More specifics
+	in the function below. 
+Parameters: NA
+**********************************************************************/
+void spi_init(){
+   DDRB |= (1<<DDB0) | (1<<DDB1) | (1<<DDB2);	//output mode for SS, MOSI, SCLK 
+ 220:	87 b3       	in	r24, 0x17	; 23
+ 222:	87 60       	ori	r24, 0x07	; 7
+ 224:	87 bb       	out	0x17, r24	; 23
+   SPCR |= (1<<MSTR) | (1<<CPOL) | (1<<CPHA) | (1<<SPE);//master mode, clk low on idle,
+ 226:	8d b1       	in	r24, 0x0d	; 13
+ 228:	8c 65       	ori	r24, 0x5C	; 92
+ 22a:	8d b9       	out	0x0d, r24	; 13
+// leading edge smaple , and spi enable 
+   SPSR |= (1<<SPI2X);			//double speed operation  
+ 22c:	70 9a       	sbi	0x0e, 0	; 14
+ 22e:	08 95       	ret
+
+00000230 <spi_read>:
+Description: This function reads data from the SPI serially and returns 
+	the 8 bit value that it read.
+Parameters: NA
+**********************************************************************/
+uint8_t spi_read() {
+   SPDR = 0x00;				//'Dummy' write to SPI
+ 230:	1f b8       	out	0x0f, r1	; 15
+   while(bit_is_clear(SPSR, SPIF)){}	//Reads the 8 bits serially
+ 232:	77 9b       	sbis	0x0e, 7	; 14
+ 234:	fe cf       	rjmp	.-4      	; 0x232 <spi_read+0x2>
+   return SPDR;
+ 236:	8f b1       	in	r24, 0x0f	; 15
+}
+ 238:	08 95       	ret
+
+0000023a <chk_buttons>:
+	be implemented at the same time. Adapted to check all buttons from 
+	Ganssel's "Guide to Debouncing" Expects active low pushbuttons on PINA 
+	port.  Debounce time is determined by external loop delay times 12. 
+Parameters: A specific button number(0-7) to check if it is pressed
+**********************************************************************/
+uint8_t chk_buttons(uint8_t button) {
+ 23a:	48 2f       	mov	r20, r24
+  static uint16_t state[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+  state[button] = (state[button] << 1) | (! bit_is_clear(PINA,button))| 0xE000;
+ 23c:	e8 2f       	mov	r30, r24
+ 23e:	f0 e0       	ldi	r31, 0x00	; 0
+ 240:	99 b3       	in	r25, 0x19	; 25
+ 242:	ee 0f       	add	r30, r30
+ 244:	ff 1f       	adc	r31, r31
+ 246:	e0 5e       	subi	r30, 0xE0	; 224
+ 248:	fe 4f       	sbci	r31, 0xFE	; 254
+ 24a:	20 81       	ld	r18, Z
+ 24c:	31 81       	ldd	r19, Z+1	; 0x01
+ 24e:	22 0f       	add	r18, r18
+ 250:	33 1f       	adc	r19, r19
+ 252:	30 6e       	ori	r19, 0xE0	; 224
+ 254:	89 2f       	mov	r24, r25
+ 256:	90 e0       	ldi	r25, 0x00	; 0
+ 258:	02 c0       	rjmp	.+4      	; 0x25e <chk_buttons+0x24>
+ 25a:	95 95       	asr	r25
+ 25c:	87 95       	ror	r24
+ 25e:	4a 95       	dec	r20
+ 260:	e2 f7       	brpl	.-8      	; 0x25a <chk_buttons+0x20>
+ 262:	81 70       	andi	r24, 0x01	; 1
+ 264:	99 27       	eor	r25, r25
+ 266:	28 2b       	or	r18, r24
+ 268:	39 2b       	or	r19, r25
+ 26a:	31 83       	std	Z+1, r19	; 0x01
+ 26c:	20 83       	st	Z, r18
+ 26e:	81 e0       	ldi	r24, 0x01	; 1
+ 270:	21 15       	cp	r18, r1
+ 272:	30 4f       	sbci	r19, 0xF0	; 240
+ 274:	09 f0       	breq	.+2      	; 0x278 <chk_buttons+0x3e>
+ 276:	80 e0       	ldi	r24, 0x00	; 0
+  if (state[button] == 0xF000)
+    return 1;
+return 0;
+}
+ 278:	08 95       	ret
+
+0000027a <segsum>:
+void segsum(uint16_t sum) {
+  int d0,d1,d2,d3; //,colon, digits;
+  //determine how many digits there are 
+  //break up decimal sum into 4 digit-segments
+  //This block of code takes in the sum and finds the 0-9 value for each of the four led digits  
+  if(hex) {
+ 27a:	20 91 1f 01 	lds	r18, 0x011F	; 0x80011f <hex>
+ 27e:	21 11       	cpse	r18, r1
+ 280:	02 c0       	rjmp	.+4      	; 0x286 <segsum+0xc>
+ 282:	0c 94 67 00 	jmp	0xce	; 0xce <segsum.part.0>
+ 286:	08 95       	ret
+
+00000288 <bars>:
+Description:This function reads in the button board and updates the 
+	LEDs on the bargraph through the serial port.
+Parameters: NA
+**********************************************************************/
+void bars() {
+   DDRA = 0x00;				//Set all as inputs
+ 288:	1a ba       	out	0x1a, r1	; 26
+   PORTA = 0xFF;			//Pull up resistors
+ 28a:	8f ef       	ldi	r24, 0xFF	; 255
+ 28c:	8b bb       	out	0x1b, r24	; 27
+   PORTB |= PINB | 0x70;		//Enable tristate buffer
+ 28e:	86 b3       	in	r24, 0x16	; 22
+ 290:	98 b3       	in	r25, 0x18	; 24
+ 292:	80 67       	ori	r24, 0x70	; 112
+ 294:	89 2b       	or	r24, r25
+ 296:	88 bb       	out	0x18, r24	; 24
+ 298:	e0 e2       	ldi	r30, 0x20	; 32
+ 29a:	f1 e0       	ldi	r31, 0x01	; 1
+
+   for(int i = 0; i < 8; i++) {		//Increment through all buttons
+ 29c:	20 e0       	ldi	r18, 0x00	; 0
+ 29e:	30 e0       	ldi	r19, 0x00	; 0
+      if(chk_buttons(i) == 1) {		//Check if button is pressed
+   	 mult = (1<<i);			//mult gets 2^i
+ 2a0:	61 e0       	ldi	r22, 0x01	; 1
+ 2a2:	70 e0       	ldi	r23, 0x00	; 0
+ 2a4:	05 c0       	rjmp	.+10     	; 0x2b0 <bars+0x28>
+void bars() {
+   DDRA = 0x00;				//Set all as inputs
+   PORTA = 0xFF;			//Pull up resistors
+   PORTB |= PINB | 0x70;		//Enable tristate buffer
+
+   for(int i = 0; i < 8; i++) {		//Increment through all buttons
+ 2a6:	2f 5f       	subi	r18, 0xFF	; 255
+ 2a8:	3f 4f       	sbci	r19, 0xFF	; 255
+ 2aa:	28 30       	cpi	r18, 0x08	; 8
+ 2ac:	31 05       	cpc	r19, r1
+ 2ae:	39 f1       	breq	.+78     	; 0x2fe <bars+0x76>
+	port.  Debounce time is determined by external loop delay times 12. 
+Parameters: A specific button number(0-7) to check if it is pressed
+**********************************************************************/
+uint8_t chk_buttons(uint8_t button) {
+  static uint16_t state[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+  state[button] = (state[button] << 1) | (! bit_is_clear(PINA,button))| 0xE000;
+ 2b0:	99 b3       	in	r25, 0x19	; 25
+ 2b2:	40 81       	ld	r20, Z
+ 2b4:	51 81       	ldd	r21, Z+1	; 0x01
+ 2b6:	44 0f       	add	r20, r20
+ 2b8:	55 1f       	adc	r21, r21
+ 2ba:	89 2f       	mov	r24, r25
+ 2bc:	90 e0       	ldi	r25, 0x00	; 0
+ 2be:	02 2e       	mov	r0, r18
+ 2c0:	02 c0       	rjmp	.+4      	; 0x2c6 <bars+0x3e>
+ 2c2:	95 95       	asr	r25
+ 2c4:	87 95       	ror	r24
+ 2c6:	0a 94       	dec	r0
+ 2c8:	e2 f7       	brpl	.-8      	; 0x2c2 <bars+0x3a>
+ 2ca:	81 70       	andi	r24, 0x01	; 1
+ 2cc:	99 27       	eor	r25, r25
+ 2ce:	84 2b       	or	r24, r20
+ 2d0:	95 2b       	or	r25, r21
+ 2d2:	90 6e       	ori	r25, 0xE0	; 224
+ 2d4:	81 93       	st	Z+, r24
+ 2d6:	91 93       	st	Z+, r25
+  if (state[button] == 0xF000)
+ 2d8:	81 15       	cp	r24, r1
+ 2da:	90 4f       	sbci	r25, 0xF0	; 240
+ 2dc:	21 f7       	brne	.-56     	; 0x2a6 <bars+0x1e>
+   PORTA = 0xFF;			//Pull up resistors
+   PORTB |= PINB | 0x70;		//Enable tristate buffer
+
+   for(int i = 0; i < 8; i++) {		//Increment through all buttons
+      if(chk_buttons(i) == 1) {		//Check if button is pressed
+   	 mult = (1<<i);			//mult gets 2^i
+ 2de:	cb 01       	movw	r24, r22
+ 2e0:	02 2e       	mov	r0, r18
+ 2e2:	02 c0       	rjmp	.+4      	; 0x2e8 <bars+0x60>
+ 2e4:	88 0f       	add	r24, r24
+ 2e6:	99 1f       	adc	r25, r25
+ 2e8:	0a 94       	dec	r0
+ 2ea:	e2 f7       	brpl	.-8      	; 0x2e4 <bars+0x5c>
+ 2ec:	90 93 1e 01 	sts	0x011E, r25	; 0x80011e <mult+0x1>
+ 2f0:	80 93 1d 01 	sts	0x011D, r24	; 0x80011d <mult>
+void bars() {
+   DDRA = 0x00;				//Set all as inputs
+   PORTA = 0xFF;			//Pull up resistors
+   PORTB |= PINB | 0x70;		//Enable tristate buffer
+
+   for(int i = 0; i < 8; i++) {		//Increment through all buttons
+ 2f4:	2f 5f       	subi	r18, 0xFF	; 255
+ 2f6:	3f 4f       	sbci	r19, 0xFF	; 255
+ 2f8:	28 30       	cpi	r18, 0x08	; 8
+ 2fa:	31 05       	cpc	r19, r1
+ 2fc:	c9 f6       	brne	.-78     	; 0x2b0 <bars+0x28>
+      if(chk_buttons(i) == 1) {		//Check if button is pressed
+   	 mult = (1<<i);			//mult gets 2^i
+      }
+   }
+   if(mult == 128){			//Button 8 toggles base 10 and 16
+ 2fe:	80 91 1d 01 	lds	r24, 0x011D	; 0x80011d <mult>
+ 302:	90 91 1e 01 	lds	r25, 0x011E	; 0x80011e <mult+0x1>
+ 306:	80 38       	cpi	r24, 0x80	; 128
+ 308:	91 05       	cpc	r25, r1
+ 30a:	09 f4       	brne	.+2      	; 0x30e <bars+0x86>
+ 30c:	40 c0       	rjmp	.+128    	; 0x38e <bars+0x106>
+      hex = !(hex);			//on the LED display
+   }
+   if(mult > 4) {			//I only want values from the
+ 30e:	80 91 1d 01 	lds	r24, 0x011D	; 0x80011d <mult>
+ 312:	90 91 1e 01 	lds	r25, 0x011E	; 0x80011e <mult+0x1>
+ 316:	05 97       	sbiw	r24, 0x05	; 5
+ 318:	20 f0       	brcs	.+8      	; 0x322 <bars+0x9a>
+      mult = 0;				//first three buttons
+ 31a:	10 92 1e 01 	sts	0x011E, r1	; 0x80011e <mult+0x1>
+ 31e:	10 92 1d 01 	sts	0x011D, r1	; 0x80011d <mult>
+   }
+   //This switch statement is used to enable a 'toggle' functionality
+   //so that modes can be selected an deselected
+   switch(mult) {
+ 322:	80 91 1d 01 	lds	r24, 0x011D	; 0x80011d <mult>
+ 326:	90 91 1e 01 	lds	r25, 0x011E	; 0x80011e <mult+0x1>
+ 32a:	82 30       	cpi	r24, 0x02	; 2
+ 32c:	91 05       	cpc	r25, r1
+ 32e:	09 f4       	brne	.+2      	; 0x332 <bars+0xaa>
+ 330:	4e c0       	rjmp	.+156    	; 0x3ce <bars+0x146>
+ 332:	84 30       	cpi	r24, 0x04	; 4
+ 334:	91 05       	cpc	r25, r1
+ 336:	99 f1       	breq	.+102    	; 0x39e <bars+0x116>
+ 338:	81 30       	cpi	r24, 0x01	; 1
+ 33a:	91 05       	cpc	r25, r1
+ 33c:	c1 f0       	breq	.+48     	; 0x36e <bars+0xe6>
+	 }
+	 else
+	    mode_sel = 4;		//If not, then change mode
+         break;
+      default:
+	 mode_sel = mode_sel;		//no/invalid button press
+ 33e:	80 91 14 01 	lds	r24, 0x0114	; 0x800114 <mode_sel>
+ 342:	90 91 15 01 	lds	r25, 0x0115	; 0x800115 <mode_sel+0x1>
+ 346:	90 93 15 01 	sts	0x0115, r25	; 0x800115 <mode_sel+0x1>
+ 34a:	80 93 14 01 	sts	0x0114, r24	; 0x800114 <mode_sel>
+   }   
+   mult = 0;				//clear mult for next pass
+ 34e:	10 92 1e 01 	sts	0x011E, r1	; 0x80011e <mult+0x1>
+ 352:	10 92 1d 01 	sts	0x011D, r1	; 0x80011d <mult>
+
+   DDRA = 0xFF;				//Set A to alloutputs
+ 356:	8f ef       	ldi	r24, 0xFF	; 255
+ 358:	8a bb       	out	0x1a, r24	; 26
+   SPDR = mode_sel;			//Write mode to the Bargraph
+ 35a:	80 91 14 01 	lds	r24, 0x0114	; 0x800114 <mode_sel>
+ 35e:	90 91 15 01 	lds	r25, 0x0115	; 0x800115 <mode_sel+0x1>
+ 362:	8f b9       	out	0x0f, r24	; 15
+   while(bit_is_clear(SPSR, SPIF)){}	
+ 364:	77 9b       	sbis	0x0e, 7	; 14
+ 366:	fe cf       	rjmp	.-4      	; 0x364 <bars+0xdc>
+   PORTB |= (1<<PB0);			//Rgclk high on bargraph
+ 368:	c0 9a       	sbi	0x18, 0	; 24
+   PORTB &= 0xFE;			//Rgclk low on bargraph
+ 36a:	c0 98       	cbi	0x18, 0	; 24
+   
+return ;
+ 36c:	08 95       	ret
+   }
+   //This switch statement is used to enable a 'toggle' functionality
+   //so that modes can be selected an deselected
+   switch(mult) {
+      case 1:
+	 if((mode_sel ^ mult) == 0){	//XOR to see if they are the same
+ 36e:	40 91 14 01 	lds	r20, 0x0114	; 0x800114 <mode_sel>
+ 372:	50 91 15 01 	lds	r21, 0x0115	; 0x800115 <mode_sel+0x1>
+ 376:	20 91 1d 01 	lds	r18, 0x011D	; 0x80011d <mult>
+ 37a:	30 91 1e 01 	lds	r19, 0x011E	; 0x80011e <mult+0x1>
+ 37e:	42 17       	cp	r20, r18
+ 380:	53 07       	cpc	r21, r19
+ 382:	09 f7       	brne	.-62     	; 0x346 <bars+0xbe>
+	 else
+	    mode_sel = 2;		//If not, then change mode
+         break;
+      case 4:
+	 if((mode_sel ^ mult) && (mode_sel != 1)){//if cur &prev are diff
+	    mode_sel = 0;//and prev isn't = 1 then two modes are selected
+ 384:	10 92 15 01 	sts	0x0115, r1	; 0x800115 <mode_sel+0x1>
+ 388:	10 92 14 01 	sts	0x0114, r1	; 0x800114 <mode_sel>
+ 38c:	e0 cf       	rjmp	.-64     	; 0x34e <bars+0xc6>
+      if(chk_buttons(i) == 1) {		//Check if button is pressed
+   	 mult = (1<<i);			//mult gets 2^i
+      }
+   }
+   if(mult == 128){			//Button 8 toggles base 10 and 16
+      hex = !(hex);			//on the LED display
+ 38e:	90 91 1f 01 	lds	r25, 0x011F	; 0x80011f <hex>
+ 392:	81 e0       	ldi	r24, 0x01	; 1
+ 394:	91 11       	cpse	r25, r1
+ 396:	33 c0       	rjmp	.+102    	; 0x3fe <bars+0x176>
+ 398:	80 93 1f 01 	sts	0x011F, r24	; 0x80011f <hex>
+ 39c:	b8 cf       	rjmp	.-144    	; 0x30e <bars+0x86>
+	 }
+	 else
+	    mode_sel = 2;		//If not, then change mode
+         break;
+      case 4:
+	 if((mode_sel ^ mult) && (mode_sel != 1)){//if cur &prev are diff
+ 39e:	20 91 14 01 	lds	r18, 0x0114	; 0x800114 <mode_sel>
+ 3a2:	30 91 15 01 	lds	r19, 0x0115	; 0x800115 <mode_sel+0x1>
+ 3a6:	80 91 1d 01 	lds	r24, 0x011D	; 0x80011d <mult>
+ 3aa:	90 91 1e 01 	lds	r25, 0x011E	; 0x80011e <mult+0x1>
+ 3ae:	28 17       	cp	r18, r24
+ 3b0:	39 07       	cpc	r19, r25
+ 3b2:	31 f0       	breq	.+12     	; 0x3c0 <bars+0x138>
+ 3b4:	80 91 14 01 	lds	r24, 0x0114	; 0x800114 <mode_sel>
+ 3b8:	90 91 15 01 	lds	r25, 0x0115	; 0x800115 <mode_sel+0x1>
+ 3bc:	01 97       	sbiw	r24, 0x01	; 1
+ 3be:	11 f7       	brne	.-60     	; 0x384 <bars+0xfc>
+	    mode_sel = 0;//and prev isn't = 1 then two modes are selected
+	 }
+	 else
+	    mode_sel = 4;		//If not, then change mode
+ 3c0:	84 e0       	ldi	r24, 0x04	; 4
+ 3c2:	90 e0       	ldi	r25, 0x00	; 0
+ 3c4:	90 93 15 01 	sts	0x0115, r25	; 0x800115 <mode_sel+0x1>
+ 3c8:	80 93 14 01 	sts	0x0114, r24	; 0x800114 <mode_sel>
+ 3cc:	c0 cf       	rjmp	.-128    	; 0x34e <bars+0xc6>
+	 }
+	 else
+	    mode_sel = 1;		//If not, then change mode
+         break;
+      case 2:
+	 if((mode_sel ^ mult) && (mode_sel != 1)){//if cur &prev are diff
+ 3ce:	20 91 14 01 	lds	r18, 0x0114	; 0x800114 <mode_sel>
+ 3d2:	30 91 15 01 	lds	r19, 0x0115	; 0x800115 <mode_sel+0x1>
+ 3d6:	80 91 1d 01 	lds	r24, 0x011D	; 0x80011d <mult>
+ 3da:	90 91 1e 01 	lds	r25, 0x011E	; 0x80011e <mult+0x1>
+ 3de:	28 17       	cp	r18, r24
+ 3e0:	39 07       	cpc	r19, r25
+ 3e2:	31 f0       	breq	.+12     	; 0x3f0 <bars+0x168>
+ 3e4:	80 91 14 01 	lds	r24, 0x0114	; 0x800114 <mode_sel>
+ 3e8:	90 91 15 01 	lds	r25, 0x0115	; 0x800115 <mode_sel+0x1>
+ 3ec:	01 97       	sbiw	r24, 0x01	; 1
+ 3ee:	51 f6       	brne	.-108    	; 0x384 <bars+0xfc>
+	    mode_sel = 0;//and prev isn't = 1 then two modes are selected
+	 }
+	 else
+	    mode_sel = 2;		//If not, then change mode
+ 3f0:	82 e0       	ldi	r24, 0x02	; 2
+ 3f2:	90 e0       	ldi	r25, 0x00	; 0
+ 3f4:	90 93 15 01 	sts	0x0115, r25	; 0x800115 <mode_sel+0x1>
+ 3f8:	80 93 14 01 	sts	0x0114, r24	; 0x800114 <mode_sel>
+ 3fc:	a8 cf       	rjmp	.-176    	; 0x34e <bars+0xc6>
+      if(chk_buttons(i) == 1) {		//Check if button is pressed
+   	 mult = (1<<i);			//mult gets 2^i
+      }
+   }
+   if(mult == 128){			//Button 8 toggles base 10 and 16
+      hex = !(hex);			//on the LED display
+ 3fe:	80 e0       	ldi	r24, 0x00	; 0
+ 400:	80 93 1f 01 	sts	0x011F, r24	; 0x80011f <hex>
+ 404:	84 cf       	rjmp	.-248    	; 0x30e <bars+0x86>
+
+00000406 <read_encoder>:
+   int8_t value = 0x00;
+   uint8_t ec_a;
+   uint8_t ec_b;
+
+   //Shift_LD_N low
+   PORTE &= 0x00;	//Begining of SHIFT_LD_N pulse. It is low here
+ 406:	83 b1       	in	r24, 0x03	; 3
+ 408:	13 b8       	out	0x03, r1	; 3
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+ 40a:	87 ec       	ldi	r24, 0xC7	; 199
+ 40c:	90 e0       	ldi	r25, 0x00	; 0
+ 40e:	01 97       	sbiw	r24, 0x01	; 1
+ 410:	f1 f7       	brne	.-4      	; 0x40e <read_encoder+0x8>
+ 412:	00 c0       	rjmp	.+0      	; 0x414 <read_encoder+0xe>
+ 414:	00 00       	nop
+   _delay_us(50);
+   PORTE |= 0xFF;	//End of SHIFT_LD_N pulse. back to high
+ 416:	83 b1       	in	r24, 0x03	; 3
+ 418:	8f ef       	ldi	r24, 0xFF	; 255
+ 41a:	83 b9       	out	0x03, r24	; 3
+   PORTD &= 0x00;	//CLK_INH low
+ 41c:	82 b3       	in	r24, 0x12	; 18
+ 41e:	12 ba       	out	0x12, r1	; 18
+Description: This function reads data from the SPI serially and returns 
+	the 8 bit value that it read.
+Parameters: NA
+**********************************************************************/
+uint8_t spi_read() {
+   SPDR = 0x00;				//'Dummy' write to SPI
+ 420:	1f b8       	out	0x0f, r1	; 15
+   while(bit_is_clear(SPSR, SPIF)){}	//Reads the 8 bits serially
+ 422:	77 9b       	sbis	0x0e, 7	; 14
+ 424:	fe cf       	rjmp	.-4      	; 0x422 <read_encoder+0x1c>
+   return SPDR;
+ 426:	9f b1       	in	r25, 0x0f	; 15
+   _delay_us(50);
+   PORTE |= 0xFF;	//End of SHIFT_LD_N pulse. back to high
+   PORTD &= 0x00;	//CLK_INH low
+
+   encoder_value = spi_read();
+   PORTD |= 0x02;	//CLK_INH high
+ 428:	91 9a       	sbi	0x12, 1	; 18
+   value = mode_sel;
+ 42a:	60 91 14 01 	lds	r22, 0x0114	; 0x800114 <mode_sel>
+ 42e:	70 91 15 01 	lds	r23, 0x0115	; 0x800115 <mode_sel+0x1>
+ 432:	86 2f       	mov	r24, r22
+   ec_a = encoder_value & 0x03;  //Only grabs these bits 0000_0011
+ 434:	49 2f       	mov	r20, r25
+ 436:	43 70       	andi	r20, 0x03	; 3
+   ec_b = encoder_value & 0x0C;  //Only grabs these bits 0000_1100 
+ 438:	9c 70       	andi	r25, 0x0C	; 12
+   ec_b = (ec_b >> 2);
+ 43a:	96 95       	lsr	r25
+ 43c:	96 95       	lsr	r25
+
+   if(ec_a != EC_a_prev){ //Compares curr encoder value to ast value 
+ 43e:	20 91 31 01 	lds	r18, 0x0131	; 0x800131 <EC_a_prev>
+ 442:	e4 2f       	mov	r30, r20
+ 444:	f0 e0       	ldi	r31, 0x00	; 0
+ 446:	02 2e       	mov	r0, r18
+ 448:	00 0c       	add	r0, r0
+ 44a:	33 0b       	sbc	r19, r19
+ 44c:	e2 17       	cp	r30, r18
+ 44e:	f3 07       	cpc	r31, r19
+ 450:	91 f0       	breq	.+36     	; 0x476 <read_encoder+0x70>
+      if(!(EC_a_prev) && (ec_a == 0x01)){//Determines CW rotation
+ 452:	20 91 31 01 	lds	r18, 0x0131	; 0x800131 <EC_a_prev>
+ 456:	21 11       	cpse	r18, r1
+ 458:	02 c0       	rjmp	.+4      	; 0x45e <read_encoder+0x58>
+ 45a:	41 30       	cpi	r20, 0x01	; 1
+ 45c:	39 f0       	breq	.+14     	; 0x46c <read_encoder+0x66>
+         value = value;
+      }
+      else if(!(EC_a_prev) && (ec_a == 0x02)){//Determines CCW rotation
+ 45e:	80 91 31 01 	lds	r24, 0x0131	; 0x800131 <EC_a_prev>
+ 462:	81 11       	cpse	r24, r1
+ 464:	02 c0       	rjmp	.+4      	; 0x46a <read_encoder+0x64>
+ 466:	42 30       	cpi	r20, 0x02	; 2
+ 468:	91 f0       	breq	.+36     	; 0x48e <read_encoder+0x88>
+	 value = -(value); 
+      }
+      else	//If not one of the state changes above, do nothing
+	 value = 0;
+ 46a:	80 e0       	ldi	r24, 0x00	; 0
+      }
+      else
+	 value = 0;
+   }
+//Saves previous values into volatile variables
+EC_a_prev = ec_a;
+ 46c:	40 93 31 01 	sts	0x0131, r20	; 0x800131 <EC_a_prev>
+EC_b_prev = ec_b;
+ 470:	90 93 30 01 	sts	0x0130, r25	; 0x800130 <EC_b_prev>
+
+return value;
+}
+ 474:	08 95       	ret
+      }
+      else	//If not one of the state changes above, do nothing
+	 value = 0;
+   }
+   else {	//This is for encoder B
+      if(!(EC_b_prev) && (ec_b == 0x01)){//CW Rotation
+ 476:	20 91 30 01 	lds	r18, 0x0130	; 0x800130 <EC_b_prev>
+ 47a:	21 11       	cpse	r18, r1
+ 47c:	02 c0       	rjmp	.+4      	; 0x482 <read_encoder+0x7c>
+ 47e:	91 30       	cpi	r25, 0x01	; 1
+ 480:	a9 f3       	breq	.-22     	; 0x46c <read_encoder+0x66>
+         value = value; 
+      }
+      else if(!(EC_b_prev) && (ec_b == 0x02)){//CCW Rotation
+ 482:	80 91 30 01 	lds	r24, 0x0130	; 0x800130 <EC_b_prev>
+ 486:	81 11       	cpse	r24, r1
+ 488:	f0 cf       	rjmp	.-32     	; 0x46a <read_encoder+0x64>
+ 48a:	92 30       	cpi	r25, 0x02	; 2
+ 48c:	71 f7       	brne	.-36     	; 0x46a <read_encoder+0x64>
+	 value = -(value);
+ 48e:	86 2f       	mov	r24, r22
+ 490:	81 95       	neg	r24
+      }
+      else
+	 value = 0;
+   }
+//Saves previous values into volatile variables
+EC_a_prev = ec_a;
+ 492:	40 93 31 01 	sts	0x0131, r20	; 0x800131 <EC_a_prev>
+EC_b_prev = ec_b;
+ 496:	90 93 30 01 	sts	0x0130, r25	; 0x800130 <EC_b_prev>
+
+return value;
+}
+ 49a:	08 95       	ret
+
+0000049c <__vector_16>:
+	update the mode and bargraph. Then I change the sum based on	
+	the value returned from the encoder reading. Sum is then bounded
+	from 0-1023. 1023+1=1 and 0-any number > 0 = 1023.
+Parameters: NA
+**********************************************************************/
+ISR(TIMER0_OVF_vect) {
+ 49c:	1f 92       	push	r1
+ 49e:	0f 92       	push	r0
+ 4a0:	0f b6       	in	r0, 0x3f	; 63
+ 4a2:	0f 92       	push	r0
+ 4a4:	11 24       	eor	r1, r1
+ 4a6:	0b b6       	in	r0, 0x3b	; 59
+ 4a8:	0f 92       	push	r0
+ 4aa:	2f 93       	push	r18
+ 4ac:	3f 93       	push	r19
+ 4ae:	4f 93       	push	r20
+ 4b0:	5f 93       	push	r21
+ 4b2:	6f 93       	push	r22
+ 4b4:	7f 93       	push	r23
+ 4b6:	8f 93       	push	r24
+ 4b8:	9f 93       	push	r25
+ 4ba:	af 93       	push	r26
+ 4bc:	bf 93       	push	r27
+ 4be:	ef 93       	push	r30
+ 4c0:	ff 93       	push	r31
+      bars();      
+ 4c2:	0e 94 44 01 	call	0x288	; 0x288 <bars>
+      sum = sum + read_encoder();
+ 4c6:	0e 94 03 02 	call	0x406	; 0x406 <read_encoder>
+ 4ca:	20 91 1b 01 	lds	r18, 0x011B	; 0x80011b <sum>
+ 4ce:	30 91 1c 01 	lds	r19, 0x011C	; 0x80011c <sum+0x1>
+ 4d2:	28 0f       	add	r18, r24
+ 4d4:	31 1d       	adc	r19, r1
+ 4d6:	87 fd       	sbrc	r24, 7
+ 4d8:	3a 95       	dec	r19
+ 4da:	30 93 1c 01 	sts	0x011C, r19	; 0x80011c <sum+0x1>
+ 4de:	20 93 1b 01 	sts	0x011B, r18	; 0x80011b <sum>
+      if(sum>1023)
+ 4e2:	80 91 1b 01 	lds	r24, 0x011B	; 0x80011b <sum>
+ 4e6:	90 91 1c 01 	lds	r25, 0x011C	; 0x80011c <sum+0x1>
+ 4ea:	81 15       	cp	r24, r1
+ 4ec:	94 40       	sbci	r25, 0x04	; 4
+ 4ee:	64 f0       	brlt	.+24     	; 0x508 <__vector_16+0x6c>
+	sum = sum % 1023;
+ 4f0:	80 91 1b 01 	lds	r24, 0x011B	; 0x80011b <sum>
+ 4f4:	90 91 1c 01 	lds	r25, 0x011C	; 0x80011c <sum+0x1>
+ 4f8:	6f ef       	ldi	r22, 0xFF	; 255
+ 4fa:	73 e0       	ldi	r23, 0x03	; 3
+ 4fc:	0e 94 fa 02 	call	0x5f4	; 0x5f4 <__divmodhi4>
+ 500:	90 93 1c 01 	sts	0x011C, r25	; 0x80011c <sum+0x1>
+ 504:	80 93 1b 01 	sts	0x011B, r24	; 0x80011b <sum>
+      if(sum<0)
+ 508:	80 91 1b 01 	lds	r24, 0x011B	; 0x80011b <sum>
+ 50c:	90 91 1c 01 	lds	r25, 0x011C	; 0x80011c <sum+0x1>
+ 510:	97 ff       	sbrs	r25, 7
+ 512:	06 c0       	rjmp	.+12     	; 0x520 <__vector_16+0x84>
+	sum = 1023; //No overflow. If less than 0 always go to 1023.
+ 514:	8f ef       	ldi	r24, 0xFF	; 255
+ 516:	93 e0       	ldi	r25, 0x03	; 3
+ 518:	90 93 1c 01 	sts	0x011C, r25	; 0x80011c <sum+0x1>
+ 51c:	80 93 1b 01 	sts	0x011B, r24	; 0x80011b <sum>
+
+}
+ 520:	ff 91       	pop	r31
+ 522:	ef 91       	pop	r30
+ 524:	bf 91       	pop	r27
+ 526:	af 91       	pop	r26
+ 528:	9f 91       	pop	r25
+ 52a:	8f 91       	pop	r24
+ 52c:	7f 91       	pop	r23
+ 52e:	6f 91       	pop	r22
+ 530:	5f 91       	pop	r21
+ 532:	4f 91       	pop	r20
+ 534:	3f 91       	pop	r19
+ 536:	2f 91       	pop	r18
+ 538:	0f 90       	pop	r0
+ 53a:	0b be       	out	0x3b, r0	; 59
+ 53c:	0f 90       	pop	r0
+ 53e:	0f be       	out	0x3f, r0	; 63
+ 540:	0f 90       	pop	r0
+ 542:	1f 90       	pop	r1
+ 544:	18 95       	reti
+
+00000546 <main>:
+	and while loop are defined. The LED display is updated continuously 
+	in the loop.
+Parameters: NA
+**********************************************************************/
+int main() {
+   TIMSK |= (1<<TOIE0);			//enable interrupts
+ 546:	87 b7       	in	r24, 0x37	; 55
+ 548:	81 60       	ori	r24, 0x01	; 1
+ 54a:	87 bf       	out	0x37, r24	; 55
+   TCCR0 |= (1<<CS02) | (1<<CS00);	//normal mode, prescale by 128
+ 54c:	83 b7       	in	r24, 0x33	; 51
+ 54e:	85 60       	ori	r24, 0x05	; 5
+ 550:	83 bf       	out	0x33, r24	; 51
+ 
+   DDRC |= 0xFF; 
+ 552:	84 b3       	in	r24, 0x14	; 20
+ 554:	9f ef       	ldi	r25, 0xFF	; 255
+ 556:	94 bb       	out	0x14, r25	; 20
+   DDRB |= 0xF0;				//PB4-6 is SEL0-2, PB7 is PWM
+ 558:	87 b3       	in	r24, 0x17	; 23
+ 55a:	80 6f       	ori	r24, 0xF0	; 240
+ 55c:	87 bb       	out	0x17, r24	; 23
+   DDRE |= 0x40;				//PE6 is SHIFT_LD_N
+ 55e:	16 9a       	sbi	0x02, 6	; 2
+   DDRD |= 0x0B;				//PE1 is CLK_INH and PE2 is SRCLK
+ 560:	81 b3       	in	r24, 0x11	; 17
+ 562:	8b 60       	ori	r24, 0x0B	; 11
+ 564:	81 bb       	out	0x11, r24	; 17
+   PORTC |= 0x00;
+ 566:	85 b3       	in	r24, 0x15	; 21
+ 568:	85 bb       	out	0x15, r24	; 21
+   PORTD |= 0x02;
+ 56a:	91 9a       	sbi	0x12, 1	; 18
+   PORTE |= 0xFF;
+ 56c:	83 b1       	in	r24, 0x03	; 3
+ 56e:	93 b9       	out	0x03, r25	; 3
+Description: Initialization of the serial port interface. More specifics
+	in the function below. 
+Parameters: NA
+**********************************************************************/
+void spi_init(){
+   DDRB |= (1<<DDB0) | (1<<DDB1) | (1<<DDB2);	//output mode for SS, MOSI, SCLK 
+ 570:	87 b3       	in	r24, 0x17	; 23
+ 572:	87 60       	ori	r24, 0x07	; 7
+ 574:	87 bb       	out	0x17, r24	; 23
+   SPCR |= (1<<MSTR) | (1<<CPOL) | (1<<CPHA) | (1<<SPE);//master mode, clk low on idle,
+ 576:	8d b1       	in	r24, 0x0d	; 13
+ 578:	8c 65       	ori	r24, 0x5C	; 92
+ 57a:	8d b9       	out	0x0d, r24	; 13
+// leading edge smaple , and spi enable 
+   SPSR |= (1<<SPI2X);			//double speed operation  
+ 57c:	70 9a       	sbi	0x0e, 0	; 14
+   PORTD |= 0x02;
+   PORTE |= 0xFF;
+
+   spi_init();				//Initalize SPI
+
+   sei();				//Enable interrupts
+ 57e:	78 94       	sei
+   while(1){
+      segsum(sum);			//Send sum to be formatted for the 7 seg display
+
+      for( int j = 0; j < 5; j++) {	//cycles through each of the five digits
+         if(j == 2 && hex){
+	    PORTA = 0b00000011;		//Turns on L3 on the LED display
+ 580:	d3 e0       	ldi	r29, 0x03	; 3
+	    }
+	    else {
+               PORTA = segment_data[j];	//Writes the segment data to PORTA aka the segments
+            }
+         }
+         PORTB = j << 4;		//J is bound 0-4 and that value is shifted left 4 so that 
+ 582:	c0 e2       	ldi	r28, 0x20	; 32
+   spi_init();				//Initalize SPI
+
+   sei();				//Enable interrupts
+   
+   while(1){
+      segsum(sum);			//Send sum to be formatted for the 7 seg display
+ 584:	20 91 1b 01 	lds	r18, 0x011B	; 0x80011b <sum>
+ 588:	30 91 1c 01 	lds	r19, 0x011C	; 0x80011c <sum+0x1>
+void segsum(uint16_t sum) {
+  int d0,d1,d2,d3; //,colon, digits;
+  //determine how many digits there are 
+  //break up decimal sum into 4 digit-segments
+  //This block of code takes in the sum and finds the 0-9 value for each of the four led digits  
+  if(hex) {
+ 58c:	90 91 1f 01 	lds	r25, 0x011F	; 0x80011f <hex>
+ 590:	99 23       	and	r25, r25
+ 592:	61 f1       	breq	.+88     	; 0x5ec <main+0xa6>
+ 594:	e6 e1       	ldi	r30, 0x16	; 22
+ 596:	f1 e0       	ldi	r31, 0x01	; 1
+Description: Program interrupts are enabled, initial port declarations,
+	and while loop are defined. The LED display is updated continuously 
+	in the loop.
+Parameters: NA
+**********************************************************************/
+int main() {
+ 598:	21 e0       	ldi	r18, 0x01	; 1
+ 59a:	30 e0       	ldi	r19, 0x00	; 0
+ 59c:	80 e0       	ldi	r24, 0x00	; 0
+ 59e:	90 e0       	ldi	r25, 0x00	; 0
+ 5a0:	15 c0       	rjmp	.+42     	; 0x5cc <main+0x86>
+      for( int j = 0; j < 5; j++) {	//cycles through each of the five digits
+         if(j == 2 && hex){
+	    PORTA = 0b00000011;		//Turns on L3 on the LED display
+	 }
+	 else {
+            if(hex){
+ 5a2:	40 91 1f 01 	lds	r20, 0x011F	; 0x80011f <hex>
+	       PORTA = segment_data[j];
+	    }
+	    else {
+               PORTA = segment_data[j];	//Writes the segment data to PORTA aka the segments
+ 5a6:	40 81       	ld	r20, Z
+ 5a8:	4b bb       	out	0x1b, r20	; 27
+            }
+         }
+         PORTB = j << 4;		//J is bound 0-4 and that value is shifted left 4 so that 
+ 5aa:	48 2f       	mov	r20, r24
+ 5ac:	42 95       	swap	r20
+ 5ae:	40 7f       	andi	r20, 0xF0	; 240
+ 5b0:	48 bb       	out	0x18, r20	; 24
+ 5b2:	af ea       	ldi	r26, 0xAF	; 175
+ 5b4:	b4 e0       	ldi	r27, 0x04	; 4
+ 5b6:	11 97       	sbiw	r26, 0x01	; 1
+ 5b8:	f1 f7       	brne	.-4      	; 0x5b6 <main+0x70>
+ 5ba:	00 c0       	rjmp	.+0      	; 0x5bc <main+0x76>
+ 5bc:	00 00       	nop
+   sei();				//Enable interrupts
+   
+   while(1){
+      segsum(sum);			//Send sum to be formatted for the 7 seg display
+
+      for( int j = 0; j < 5; j++) {	//cycles through each of the five digits
+ 5be:	25 30       	cpi	r18, 0x05	; 5
+ 5c0:	31 05       	cpc	r19, r1
+ 5c2:	01 f3       	breq	.-64     	; 0x584 <main+0x3e>
+ 5c4:	01 96       	adiw	r24, 0x01	; 1
+ 5c6:	2f 5f       	subi	r18, 0xFF	; 255
+ 5c8:	3f 4f       	sbci	r19, 0xFF	; 255
+ 5ca:	31 96       	adiw	r30, 0x01	; 1
+         if(j == 2 && hex){
+ 5cc:	82 30       	cpi	r24, 0x02	; 2
+ 5ce:	91 05       	cpc	r25, r1
+ 5d0:	41 f7       	brne	.-48     	; 0x5a2 <main+0x5c>
+ 5d2:	40 91 1f 01 	lds	r20, 0x011F	; 0x80011f <hex>
+ 5d6:	44 23       	and	r20, r20
+ 5d8:	21 f3       	breq	.-56     	; 0x5a2 <main+0x5c>
+	    PORTA = 0b00000011;		//Turns on L3 on the LED display
+ 5da:	db bb       	out	0x1b, r29	; 27
+	    }
+	    else {
+               PORTA = segment_data[j];	//Writes the segment data to PORTA aka the segments
+            }
+         }
+         PORTB = j << 4;		//J is bound 0-4 and that value is shifted left 4 so that 
+ 5dc:	c8 bb       	out	0x18, r28	; 24
+ 5de:	af ea       	ldi	r26, 0xAF	; 175
+ 5e0:	b4 e0       	ldi	r27, 0x04	; 4
+ 5e2:	11 97       	sbiw	r26, 0x01	; 1
+ 5e4:	f1 f7       	brne	.-4      	; 0x5e2 <main+0x9c>
+ 5e6:	00 c0       	rjmp	.+0      	; 0x5e8 <main+0xa2>
+ 5e8:	00 00       	nop
+ 5ea:	ec cf       	rjmp	.-40     	; 0x5c4 <main+0x7e>
+ 5ec:	c9 01       	movw	r24, r18
+ 5ee:	0e 94 67 00 	call	0xce	; 0xce <segsum.part.0>
+ 5f2:	d0 cf       	rjmp	.-96     	; 0x594 <main+0x4e>
+
+000005f4 <__divmodhi4>:
+ 5f4:	97 fb       	bst	r25, 7
+ 5f6:	07 2e       	mov	r0, r23
+ 5f8:	16 f4       	brtc	.+4      	; 0x5fe <__divmodhi4+0xa>
+ 5fa:	00 94       	com	r0
+ 5fc:	07 d0       	rcall	.+14     	; 0x60c <__divmodhi4_neg1>
+ 5fe:	77 fd       	sbrc	r23, 7
+ 600:	09 d0       	rcall	.+18     	; 0x614 <__divmodhi4_neg2>
+ 602:	0e 94 1d 03 	call	0x63a	; 0x63a <__udivmodhi4>
+ 606:	07 fc       	sbrc	r0, 7
+ 608:	05 d0       	rcall	.+10     	; 0x614 <__divmodhi4_neg2>
+ 60a:	3e f4       	brtc	.+14     	; 0x61a <__divmodhi4_exit>
+
+0000060c <__divmodhi4_neg1>:
+ 60c:	90 95       	com	r25
+ 60e:	81 95       	neg	r24
+ 610:	9f 4f       	sbci	r25, 0xFF	; 255
+ 612:	08 95       	ret
+
+00000614 <__divmodhi4_neg2>:
+ 614:	70 95       	com	r23
+ 616:	61 95       	neg	r22
+ 618:	7f 4f       	sbci	r23, 0xFF	; 255
+
+0000061a <__divmodhi4_exit>:
+ 61a:	08 95       	ret
+
+0000061c <__umulhisi3>:
+ 61c:	a2 9f       	mul	r26, r18
+ 61e:	b0 01       	movw	r22, r0
+ 620:	b3 9f       	mul	r27, r19
+ 622:	c0 01       	movw	r24, r0
+ 624:	a3 9f       	mul	r26, r19
+ 626:	70 0d       	add	r23, r0
+ 628:	81 1d       	adc	r24, r1
+ 62a:	11 24       	eor	r1, r1
+ 62c:	91 1d       	adc	r25, r1
+ 62e:	b2 9f       	mul	r27, r18
+ 630:	70 0d       	add	r23, r0
+ 632:	81 1d       	adc	r24, r1
+ 634:	11 24       	eor	r1, r1
+ 636:	91 1d       	adc	r25, r1
+ 638:	08 95       	ret
+
+0000063a <__udivmodhi4>:
+ 63a:	aa 1b       	sub	r26, r26
+ 63c:	bb 1b       	sub	r27, r27
+ 63e:	51 e1       	ldi	r21, 0x11	; 17
+ 640:	07 c0       	rjmp	.+14     	; 0x650 <__udivmodhi4_ep>
+
+00000642 <__udivmodhi4_loop>:
+ 642:	aa 1f       	adc	r26, r26
+ 644:	bb 1f       	adc	r27, r27
+ 646:	a6 17       	cp	r26, r22
+ 648:	b7 07       	cpc	r27, r23
+ 64a:	10 f0       	brcs	.+4      	; 0x650 <__udivmodhi4_ep>
+ 64c:	a6 1b       	sub	r26, r22
+ 64e:	b7 0b       	sbc	r27, r23
+
+00000650 <__udivmodhi4_ep>:
+ 650:	88 1f       	adc	r24, r24
+ 652:	99 1f       	adc	r25, r25
+ 654:	5a 95       	dec	r21
+ 656:	a9 f7       	brne	.-22     	; 0x642 <__udivmodhi4_loop>
+ 658:	80 95       	com	r24
+ 65a:	90 95       	com	r25
+ 65c:	bc 01       	movw	r22, r24
+ 65e:	cd 01       	movw	r24, r26
+ 660:	08 95       	ret
+
+00000662 <_exit>:
+ 662:	f8 94       	cli
+
+00000664 <__stop_program>:
+ 664:	ff cf       	rjmp	.-2      	; 0x664 <__stop_program>
