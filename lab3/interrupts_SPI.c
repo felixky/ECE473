@@ -188,6 +188,7 @@ void bars() {
    	 mult = (1<<i);			//mult gets 2^i
       }
    }
+   PORTB &= 0x00;
    if(mult == 128){			//Button 8 toggles base 10 and 16
       hex = !(hex);			//on the LED display
    }
@@ -343,7 +344,7 @@ int main() {
          }
          PORTB = j << 4;		//J is bound 0-4 and that value is shifted left 4 so that 
 				//the digit to be displayed is in pin 4, 5, and 6 
-         _delay_us(300);		//delay so that the display does not flicker
+         _delay_us(200);		//delay so that the display does not flicker
       }
 //        PORTB = 0x00;
    }
