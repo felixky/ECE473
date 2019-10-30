@@ -6,12 +6,20 @@ Descriptiion: In Lab 3, I will be implementing an LED display and a
 	pushbutton board on the ATmega128 using interrupts and SPI.
 **********************************************************************/
 
-//  HARDWARE SETUP:
-//  PORTA is connected to the segments of the LED display. and to the pushbuttons.
-//  PORTA.0 corresponds to segment a, PORTA.1 corresponds to segement b, etc.
-//  PORTB bits 4-6 go to a,b,c inputs of the 74HC138.
-//  PORTB bit 7 goes to the PWM transistor base.
-
+/*			  HARDWARE SETUP:
+-  PORTA is connected to the segments of the LED display. and to the pushbuttons.
+-  PORTA.0 corresponds to segment a, PORTA.1 corresponds to segement b, etc.
+-  PORTB bits 4-6 go to a,b,c inputs of the 74HC138.
+-  PORTB bit 7 goes to the PWM transistor base.
+-  PORTB bit 3 goes to SOUT on the encoder
+-  PORTB bit 2 goes to SDIN for the Bargraph
+-  PORTB but 1 goes to both SRCLK(Bargraph) and SCK(Encoder)
+-  PORTB bit 0 goes to RegCLK on the Bargraph
+-  PORTE bit 6 goes to SHIFT_LD_N on the encoder
+-  PORTD bit 1 goes to CLK_INH on the encoder
+-  PORTD bit 0 goes to S_IN on te encoder
+-  PORTC bit 6 goes to OE_N on the bargraph  
+**********************************************************************/
 //#define F_CPU 16000000 // cpu speed in hertz 
 #define TRUE 1
 #define FALSE 0
@@ -337,7 +345,7 @@ int main() {
 				//the digit to be displayed is in pin 4, 5, and 6 
          _delay_us(300);		//delay so that the display does not flicker
       }
-       // PORTB = 0x00;
+//        PORTB = 0x00;
    }
 return 0;
 }

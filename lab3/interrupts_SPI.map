@@ -494,10 +494,10 @@ END GROUP
  .debug_abbrev  0x0000000000000000      0x718 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr51/crtatmega128.o
  .debug_abbrev  0x0000000000000718      0x284 interrupts_SPI.o
 
-.debug_line     0x0000000000000000      0x445
+.debug_line     0x0000000000000000      0x447
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000       0x1a /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr51/crtatmega128.o
- .debug_line    0x000000000000001a      0x42b interrupts_SPI.o
+ .debug_line    0x000000000000001a      0x42d interrupts_SPI.o
 
 .debug_frame    0x0000000000000000       0xe4
  *(.debug_frame)
