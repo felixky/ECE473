@@ -28,7 +28,14 @@ Descriptiion: In Lab 4, I will be implementing an alarm clock on the
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
+#include <stdlib.h>
+#include "hd44780.h"
 
+volatile uint8_t sec_count = 0;
+volatile uint8_t min_count = 0;
+volatile uint8_t hour_count = 0;
+volatile uint8_t am_pm = 0;		//0=am 1=pm
+volatile uint8_t mil = 1;		//military time is on by default
 volatile uint8_t hex = 0;
 volatile uint16_t mult = 0;
 volatile int16_t sum = 0;
@@ -208,14 +215,15 @@ void bars() {
 	    mode_sel = 1;		//If not, then change mode
          break;
       case 2:
-	 if((mode_sel ^ mult) && (mode_sel != 1)){//if cur &prev are diff
+	 if((mode_sel ^ mult) && (mode_sel != 1 | mode_sel != 0)){//if cur &prev are diff
 	    mode_sel = 0;//and prev isn't = 1 then two modes are selected
 	 }
 	 else
 	    mode_sel = 2;		//If not, then change mode
+         
          break;
       case 4:
-	 if((mode_sel ^ mult) && (mode_sel != 1)){//if cur &prev are diff
+	 if((mode_sel ^ mult) && (mode_sel != 1 | mode_sel != 0)){//if cur &prev are diff
 	    mode_sel = 0;//and prev isn't = 1 then two modes are selected
 	 }
 	 else
@@ -297,12 +305,34 @@ Description: Timer 0 overflow compare match interrupt. I call bars to
 Parameters: NA
 **********************************************************************/
 ISR(TIMER0_OVF_vect) {
+   static uint8_t count_7_8125ms = 0;
+
+   count_7_8125ms++;
+   if((count_7_8125ms % 128) == 0) { //interrupts every 1 second
+      sec_count++;
+   }
       bars();      
       sum = sum + read_encoder();
       if(sum>1023)
 	sum = sum % 1023;
       if(sum<0)
 	sum = 1023; //No overflow. If less than 0 always go to 1023.
+
+}
+
+void clock_time(){ //by default we use military time
+   
+   if(sec_count == 60){
+      min_count++;
+      sec_count = 0;
+      if(min_count == 60){
+	 hour_count++;
+	 min_count = 0;
+	 if(hour_count == 24){
+	    hour_count = 0;
+	 }//hours	
+      }//mins
+   }//secs
 
 }
 
@@ -314,9 +344,18 @@ Description: Program interrupts are enabled, initial port declarations,
 Parameters: NA
 **********************************************************************/
 int main() {
+   ASSR |= (1<<AS0);
    TIMSK |= (1<<TOIE0);			//enable interrupts
-   TCCR0 |= (1<<CS02) | (1<<CS00);	//normal mode, prescale by 128
- 
+   TCCR0 |= (1<<CS00);	//normal mode, no prescale
+
+//TNCT1 init
+//   TCCR1B
+//   TCCR1A
+//   TIMSK
+//   ETMISK
+//   TIFR
+//   TCNT1 = 0x00; 		//Initialize TNCT1 to 0
+
    DDRC |= 0xFF; 
    DDRB |= 0xF0;				//PB4-6 is SEL0-2, PB7 is PWM
    DDRE |= 0x40;				//PE6 is SHIFT_LD_N
@@ -330,6 +369,7 @@ int main() {
    sei();				//Enable interrupts
    
    while(1){
+      clock_time();
       segsum(sum);			//Send sum to be formatted for the 7 seg display
 
       for( int j = 0; j < 5; j++) {	//cycles through each of the five digits
