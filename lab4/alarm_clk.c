@@ -32,10 +32,12 @@ Descriptiion: In Lab 4, I will be implementing an alarm clock on the
 #include "hd44780.h"
 
 volatile uint8_t sec_count = 0;
-volatile uint8_t min_count = 0;
-volatile uint8_t hour_count = 0;
+volatile int8_t min_count = 0;
+volatile int8_t hour_count = 12;
 volatile uint8_t am_pm = 0;		//0=am 1=pm
 volatile uint8_t mil = 1;		//military time is on by default
+volatile uint8_t alarm = 0;
+
 volatile uint8_t hex = 0;
 volatile uint16_t mult = 0;
 volatile int16_t sum = 0;
@@ -125,62 +127,6 @@ uint8_t chk_buttons(uint8_t button) {
 return 0;
 }
 
-/***********************************************************************************
-Function:segment_sum                                    
-Description: takes a 16-bit binary input value and places the appropriate equivalent 
-	4 digit BCD segment code in the array segment_data for display. array is 
-	loaded at exit as:  |digit3|digit2|colon|digit1|digit0|
-Parameters: A sum that willl be decoded
-************************************************************************************/
-void segsum(uint16_t sum) {
-  int d0,d1,d2,d3; //,colon, digits;
-  //determine how many digits there are 
-  //break up decimal sum into 4 digit-segments
-  //This block of code takes in the sum and finds the 0-9 value for each of the four led digits  
-  if(hex) {
-//Integer division and mod are used to convert decimal to hex
-     d0 = ((sum%256)%16);//1s digit
-     d1 = (sum %256)/16; //10s digit
-     d2 = sum/256;	 //100s digit. Integer division
-     d3 = 0;		 //1000s digit. 1023 will never need this digit
-
-     segment_data[0] = dec_to_7seg[d0]; 
-     segment_data[1] = dec_to_7seg[d1];
-     segment_data[2] = 0xFF;
-     segment_data[3] = dec_to_7seg[d2];
-     segment_data[4] = 0xFF;
-     
-     if(sum < 0x100)	//Compares the sum to 255
-	segment_data[3] = 0xFF;
-     if(sum < 0x10)	//Compares the sum to 10
-	segment_data[1] = 0xFF;
-     
-  }
-  else {
-     d0 = (sum % 10);		//1's digit
-     d1 = (((sum % 100) / 10) % 10);	//10's digit
-     d2 = (sum / 100) % 10;		//100's digit
-     d3 = (sum / 1000) % 10;		//1000's digit
-
-  //This block changes the decimal from just above into 8-bits that can be displayed on the segments 
-     segment_data[0] = dec_to_7seg[d0]; 
-     segment_data[1] = dec_to_7seg[d1];
-     segment_data[2] = 0xFF;
-     segment_data[3] = dec_to_7seg[d2];
-     segment_data[4] = dec_to_7seg[d3];
-
-  //blank out leading zero digits and determine number of digits
-     if(sum < 0x3E8)	//Compares the sum to 1000
-	segment_data[4] = 0xFF;
-     if(sum < 0x64)	//Compares the sum to 100
-	segment_data[3] = 0xFF;
-     if(sum < 0xA)	//Compares the sum to 10
-	segment_data[1] = 0xFF;
-  }
-   return;
-}//segment_sum
-
-
 /**********************************************************************
 Function: bar()
 Description:This function reads in the button board and updates the 
@@ -215,7 +161,7 @@ void bars() {
 	    mode_sel = 1;		//If not, then change mode
          break;
       case 2:
-	 if((mode_sel ^ mult) && (mode_sel != 1 | mode_sel != 0)){//if cur &prev are diff
+	 if((mode_sel ^ mult) && (mode_sel == 4)){//if cur &prev are diff
 	    mode_sel = 0;//and prev isn't = 1 then two modes are selected
 	 }
 	 else
@@ -223,7 +169,7 @@ void bars() {
          
          break;
       case 4:
-	 if((mode_sel ^ mult) && (mode_sel != 1 | mode_sel != 0)){//if cur &prev are diff
+	 if((mode_sel ^ mult) && ((mode_sel == 2))){//if cur &prev are diff
 	    mode_sel = 0;//and prev isn't = 1 then two modes are selected
 	 }
 	 else
@@ -271,20 +217,32 @@ int8_t read_encoder() {
 
    if(ec_a != EC_a_prev){ //Compares curr encoder value to ast value 
       if(!(EC_a_prev) && (ec_a == 0x01)){//Determines CW rotation
-         value = value;
+         hour_count = hour_count + 1;//value = value;
+	 if(hour_count == 24)
+	    hour_count = 0;
       }
       else if(!(EC_a_prev) && (ec_a == 0x02)){//Determines CCW rotation
-	 value = -(value); 
+	 hour_count = hour_count - 1;//value = -(value);
+	 if(hour_count < 0)
+	    hour_count = 23; 
       }
       else	//If not one of the state changes above, do nothing
 	 value = 0;
    }
    else {	//This is for encoder B
       if(!(EC_b_prev) && (ec_b == 0x01)){//CW Rotation
-         value = value; 
+         min_count = min_count + 1;//value = value;
+	 if(min_count == 60){
+	    min_count = 0; 
+	    hour_count++;
+	 }
       }
       else if(!(EC_b_prev) && (ec_b == 0x02)){//CCW Rotation
-	 value = -(value);
+	 min_count = min_count - 1; //value = -(value);
+	 if(min_count < 0){
+	    min_count = 59;
+	    hour_count--;
+	 }
       }
       else
 	 value = 0;
@@ -311,29 +269,50 @@ ISR(TIMER0_OVF_vect) {
    if((count_7_8125ms % 128) == 0) { //interrupts every 1 second
       sec_count++;
    }
-      bars();      
-      sum = sum + read_encoder();
-      if(sum>1023)
-	sum = sum % 1023;
-      if(sum<0)
-	sum = 1023; //No overflow. If less than 0 always go to 1023.
+   bars();  
+   read_encoder();      
+//      sum = sum + read_encoder();
+//      if(sum>1023)
+//	sum = sum % 1023;
+//      if(sum<0)
+//	sum = 1023; //No overflow. If less than 0 always go to 1023.
 
 }
 
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
 void clock_time(){ //by default we use military time
    
-   if(sec_count == 60){
+   if(sec_count > 59){
       min_count++;
       sec_count = 0;
-      if(min_count == 60){
+      if(min_count > 59){
 	 hour_count++;
 	 min_count = 0;
-	 if(hour_count == 24){
+	 if(hour_count > 23){
 	    hour_count = 0;
 	 }//hours	
       }//mins
    }//secs
-
+   
+   if(!mil){
+      if(hour_count > 12){
+         hour_count = hour_count - 12;
+      }
+      if(hour_count == 0){
+         hour_count = 12;
+      }
+      
+   }
+      segment_data[4] = dec_to_7seg[hour_count/10];
+      segment_data[3] = dec_to_7seg[hour_count%10];
+      if(sec_count%2){segment_data[2] = 0b100;}		//Turn colon on
+      else {segment_data[2] = 0b111;}		//Turn colon off
+      segment_data[1] = dec_to_7seg[min_count/10];
+      segment_data[0] = dec_to_7seg[min_count%10];
 }
 
 /**********************************************************************
@@ -346,7 +325,7 @@ Parameters: NA
 int main() {
    ASSR |= (1<<AS0);
    TIMSK |= (1<<TOIE0);			//enable interrupts
-   TCCR0 |= (1<<CS00);	//normal mode, no prescale
+   TCCR0 |= (1<<CS00);			//normal mode, no prescale
 
 //TNCT1 init
 //   TCCR1B
@@ -370,25 +349,21 @@ int main() {
    
    while(1){
       clock_time();
-      segsum(sum);			//Send sum to be formatted for the 7 seg display
 
       for( int j = 0; j < 5; j++) {	//cycles through each of the five digits
-         if(j == 2 && hex){
-	    PORTA = 0b00000011;		//Turns on L3 on the LED display
+         if(alarm){
+	    segment_data[2] &= 0b011;
 	 }
-	 else {
-            if(hex){
-	       PORTA = segment_data[j];
-	    }
-	    else {
-               PORTA = segment_data[j];	//Writes the segment data to PORTA aka the segments
-            }
-         }
+	 PORTA = segment_data[j];	//Writes the segment data to PORTA aka the segments
          PORTB = j << 4;		//J is bound 0-4 and that value is shifted left 4 so that 
 				//the digit to be displayed is in pin 4, 5, and 6 
          _delay_us(200);		//delay so that the display does not flicker
       }
-//        PORTB = 0x00;
    }
 return 0;
 }
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/

@@ -1,14 +1,17 @@
-PRG            = alarm_clk
-OBJ            = $(PRG).o hd44780.o
-SRCS           = $(PRG).c hd44780.c
-
+PRG            = adc_skel
+OBJ            = adc_skel.o hd44780.o
 MCU_TARGET     = atmega128
 OPTIMIZE       = -O2    # options are 1, 2, 3, s
+DEFS           =
+LIBS           =
 CC             = avr-gcc
 F_CPU          = 16000000UL
 
-override CFLAGS       = -g -Wall $(OPTIMIZE) -mmcu=$(MCU_TARGET) $(DEFS) -DF_CPU=$(F_CPU)
-override LDFLAGS      = -Wl,-Map,$(PRG).map
+
+# Override is only needed by avr-lib build system.
+
+override CFLAGS        = -g -Wall $(OPTIMIZE) -mmcu=$(MCU_TARGET) $(DEFS) -DF_CPU=$(F_CPU)
+override LDFLAGS       = -Wl,-Map,$(PRG).map
 
 OBJCOPY        = avr-objcopy
 OBJDUMP        = avr-objdump
@@ -19,14 +22,11 @@ $(PRG).elf: $(OBJ)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 clean: 
-	rm -rf *.o $(PRG).elf *.bin *.hex *.srec *.bak  
-	rm -rf $(PRG)_eeprom.bin $(PRG)_eeprom.hex $(PRG)_eeprom.srec
-	rm -rf *.lst *.map 
+	rm -rf *.o $(PRG).elf *.eps *.png *.pdf *.bak 
+	rm -rf *.bin *.hex *.srec *.lst *.map $(EXTRA_CLEAN_FILES) *~
 
-#setup for for USB programmer
-#may need to be changed depending on your programmer
 program: $(PRG).hex
-	sudo avrdude -c usbasp -p m128 -e -U flash:w:$(PRG).hex  -v
+	avrdude -p m128 -c usbasp -e -U flash:w:$(PRG).hex 
 
 lst:  $(PRG).lst
 
@@ -66,3 +66,4 @@ esrec: $(PRG)_eeprom.srec
 
 %_eeprom.bin: %.elf
 	$(OBJCOPY) -j .eeprom --change-section-lma .eeprom=0 -O binary $< $@
+
