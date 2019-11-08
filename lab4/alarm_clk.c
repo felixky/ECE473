@@ -214,7 +214,7 @@ int8_t read_encoder() {
    ec_a = encoder_value & 0x03;  //Only grabs these bits 0000_0011
    ec_b = encoder_value & 0x0C;  //Only grabs these bits 0000_1100 
    ec_b = (ec_b >> 2);
-
+if(mode_sel == 1){
    if(ec_a != EC_a_prev){ //Compares curr encoder value to ast value 
       if(!(EC_a_prev) && (ec_a == 0x01)){//Determines CW rotation
          hour_count = hour_count + 1;//value = value;
@@ -247,6 +247,7 @@ int8_t read_encoder() {
       else
 	 value = 0;
    }
+}
 //Saves previous values into volatile variables
 EC_a_prev = ec_a;
 EC_b_prev = ec_b;
