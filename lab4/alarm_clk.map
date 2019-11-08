@@ -419,40 +419,40 @@ END GROUP
  *(.fini0)
                 0x0000000000000ff4                _etext = .
 
-.data           0x0000000000800100       0x18 load address 0x0000000000000ff4
+.data           0x0000000000800100       0x16 load address 0x0000000000000ff4
                 0x0000000000800100                PROVIDE (__data_start, .)
  *(.data)
  .data          0x0000000000800100        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr51/crtatmega128.o
- .data          0x0000000000800100       0x18 alarm_clk.o
+ .data          0x0000000000800100       0x16 alarm_clk.o
                 0x0000000000800100                dec_to_7seg
                 0x0000000000800112                prev_mode
-                0x0000000000800114                mode_sel
-                0x0000000000800116                mil
-                0x0000000000800117                hour_count
- .data          0x0000000000800118        0x0 hd44780.o
- .data          0x0000000000800118        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/avr51/libgcc.a(_divmodhi4.o)
- .data          0x0000000000800118        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/avr51/libgcc.a(_divmodsi4.o)
- .data          0x0000000000800118        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/avr51/libgcc.a(_negsi2.o)
- .data          0x0000000000800118        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/avr51/libgcc.a(_exit.o)
- .data          0x0000000000800118        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/avr51/libgcc.a(_copy_data.o)
- .data          0x0000000000800118        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/avr51/libgcc.a(_clear_bss.o)
- .data          0x0000000000800118        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/avr51/libgcc.a(_udivmodhi4.o)
- .data          0x0000000000800118        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/avr51/libgcc.a(_udivmodsi4.o)
+                0x0000000000800114                mil
+                0x0000000000800115                hour_count
+ .data          0x0000000000800116        0x0 hd44780.o
+ .data          0x0000000000800116        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/avr51/libgcc.a(_divmodhi4.o)
+ .data          0x0000000000800116        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/avr51/libgcc.a(_divmodsi4.o)
+ .data          0x0000000000800116        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/avr51/libgcc.a(_negsi2.o)
+ .data          0x0000000000800116        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/avr51/libgcc.a(_exit.o)
+ .data          0x0000000000800116        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/avr51/libgcc.a(_copy_data.o)
+ .data          0x0000000000800116        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/avr51/libgcc.a(_clear_bss.o)
+ .data          0x0000000000800116        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/avr51/libgcc.a(_udivmodhi4.o)
+ .data          0x0000000000800116        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/avr51/libgcc.a(_udivmodsi4.o)
  *(.data*)
  *(.gnu.linkonce.d*)
  *(.rodata)
  *(.rodata*)
  *(.gnu.linkonce.r*)
-                0x0000000000800118                . = ALIGN (0x2)
-                0x0000000000800118                _edata = .
-                0x0000000000800118                PROVIDE (__data_end, .)
+                0x0000000000800116                . = ALIGN (0x2)
+                0x0000000000800116                _edata = .
+                0x0000000000800116                PROVIDE (__data_end, .)
 
-.bss            0x0000000000800118       0x52
-                0x0000000000800118                PROVIDE (__bss_start, .)
+.bss            0x0000000000800116       0x54
+                0x0000000000800116                PROVIDE (__bss_start, .)
  *(.bss)
- .bss           0x0000000000800118        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr51/crtatmega128.o
- .bss           0x0000000000800118       0x1f alarm_clk.o
-                0x0000000000800118                segment_data
+ .bss           0x0000000000800116        0x0 /opt/avr8-gnu-toolchain-linux_x86_64/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr51/crtatmega128.o
+ .bss           0x0000000000800116       0x21 alarm_clk.o
+                0x0000000000800116                segment_data
+                0x000000000080011b                mode_sel
                 0x000000000080011d                sum
                 0x000000000080011f                mult
                 0x0000000000800121                hex
@@ -479,7 +479,7 @@ END GROUP
                 0x000000000080015a                lcd_str
                 0x000000000080016a                PROVIDE (__bss_end, .)
                 0x0000000000000ff4                __data_load_start = LOADADDR (.data)
-                0x000000000000100c                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x000000000000100a                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x000000000080016a        0x0
                 [!provide]                        PROVIDE (__noinit_start, .)

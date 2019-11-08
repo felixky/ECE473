@@ -3,13 +3,13 @@ alarm_clk.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000018  00800100  00000ff4  00001088  2**0
+  0 .data         00000016  00800100  00000ff4  00001088  2**0
                   CONTENTS, ALLOC, LOAD, DATA
   1 .text         00000ff4  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          00000052  00800118  00800118  000010a0  2**0
+  2 .bss          00000054  00800116  00800116  0000109e  2**0
                   ALLOC
-  3 .comment      00000030  00000000  00000000  000010a0  2**0
+  3 .comment      00000030  00000000  00000000  0000109e  2**0
                   CONTENTS, READONLY
   4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  000010d0  2**2
                   CONTENTS, READONLY
@@ -88,13 +88,13 @@ Disassembly of section .text:
   a6:	02 c0       	rjmp	.+4      	; 0xac <__do_copy_data+0x14>
   a8:	07 90       	elpm	r0, Z+
   aa:	0d 92       	st	X+, r0
-  ac:	a8 31       	cpi	r26, 0x18	; 24
+  ac:	a6 31       	cpi	r26, 0x16	; 22
   ae:	b1 07       	cpc	r27, r17
   b0:	d9 f7       	brne	.-10     	; 0xa8 <__do_copy_data+0x10>
 
 000000b2 <__do_clear_bss>:
   b2:	21 e0       	ldi	r18, 0x01	; 1
-  b4:	a8 e1       	ldi	r26, 0x18	; 24
+  b4:	a6 e1       	ldi	r26, 0x16	; 22
   b6:	b1 e0       	ldi	r27, 0x01	; 1
   b8:	01 c0       	rjmp	.+2      	; 0xbc <.do_clear_bss_start>
 
@@ -300,7 +300,7 @@ void bars() {
  1aa:	80 38       	cpi	r24, 0x80	; 128
  1ac:	91 05       	cpc	r25, r1
  1ae:	e1 f1       	breq	.+120    	; 0x228 <bars+0x100>
-      hex = !(hex);			//on the LED display
+      alarm = !(alarm);			//on the LED display
    }
    if(mult > 4) {			//I only want values from the
  1b0:	80 91 1f 01 	lds	r24, 0x011F	; 0x80011f <mult>
@@ -332,10 +332,10 @@ void bars() {
          break;
       default:
 	 mode_sel = mode_sel;		//no/invalid button press
- 1e0:	80 91 14 01 	lds	r24, 0x0114	; 0x800114 <mode_sel>
- 1e4:	90 91 15 01 	lds	r25, 0x0115	; 0x800115 <mode_sel+0x1>
- 1e8:	90 93 15 01 	sts	0x0115, r25	; 0x800115 <mode_sel+0x1>
- 1ec:	80 93 14 01 	sts	0x0114, r24	; 0x800114 <mode_sel>
+ 1e0:	80 91 1b 01 	lds	r24, 0x011B	; 0x80011b <mode_sel>
+ 1e4:	90 91 1c 01 	lds	r25, 0x011C	; 0x80011c <mode_sel+0x1>
+ 1e8:	90 93 1c 01 	sts	0x011C, r25	; 0x80011c <mode_sel+0x1>
+ 1ec:	80 93 1b 01 	sts	0x011B, r24	; 0x80011b <mode_sel>
    }   
    mult = 0;				//clear mult for next pass
  1f0:	10 92 20 01 	sts	0x0120, r1	; 0x800120 <mult+0x1>
@@ -345,8 +345,8 @@ void bars() {
  1f8:	8f ef       	ldi	r24, 0xFF	; 255
  1fa:	8a bb       	out	0x1a, r24	; 26
    SPDR = mode_sel;			//Write mode to the Bargraph
- 1fc:	80 91 14 01 	lds	r24, 0x0114	; 0x800114 <mode_sel>
- 200:	90 91 15 01 	lds	r25, 0x0115	; 0x800115 <mode_sel+0x1>
+ 1fc:	80 91 1b 01 	lds	r24, 0x011B	; 0x80011b <mode_sel>
+ 200:	90 91 1c 01 	lds	r25, 0x011C	; 0x80011c <mode_sel+0x1>
  204:	8f b9       	out	0x0f, r24	; 15
    while(bit_is_clear(SPSR, SPIF)){}	
  206:	77 9b       	sbis	0x0e, 7	; 14
@@ -364,8 +364,8 @@ return ;
    switch(mult) {
       case 1:
 	 if((mode_sel ^ mult) == 0){	//XOR to see if they are the same
- 210:	40 91 14 01 	lds	r20, 0x0114	; 0x800114 <mode_sel>
- 214:	50 91 15 01 	lds	r21, 0x0115	; 0x800115 <mode_sel+0x1>
+ 210:	40 91 1b 01 	lds	r20, 0x011B	; 0x80011b <mode_sel>
+ 214:	50 91 1c 01 	lds	r21, 0x011C	; 0x80011c <mode_sel+0x1>
  218:	20 91 1f 01 	lds	r18, 0x011F	; 0x80011f <mult>
  21c:	30 91 20 01 	lds	r19, 0x0120	; 0x800120 <mult+0x1>
  220:	42 17       	cp	r20, r18
@@ -377,28 +377,28 @@ return ;
    }
    PORTB &= 0x00;
    if(mult == 128){			//Button 8 toggles base 10 and 16
-      hex = !(hex);			//on the LED display
- 228:	90 91 21 01 	lds	r25, 0x0121	; 0x800121 <hex>
+      alarm = !(alarm);			//on the LED display
+ 228:	90 91 22 01 	lds	r25, 0x0122	; 0x800122 <alarm>
  22c:	81 e0       	ldi	r24, 0x01	; 1
  22e:	91 11       	cpse	r25, r1
  230:	38 c0       	rjmp	.+112    	; 0x2a2 <bars+0x17a>
- 232:	80 93 21 01 	sts	0x0121, r24	; 0x800121 <hex>
+ 232:	80 93 22 01 	sts	0x0122, r24	; 0x800122 <alarm>
  236:	bc cf       	rjmp	.-136    	; 0x1b0 <bars+0x88>
 	 else
 	    mode_sel = 2;		//If not, then change mode
          
          break;
       case 4:
-	 if((mode_sel ^ mult) && ((mode_sel == 2))){//if cur &prev are diff
- 238:	20 91 14 01 	lds	r18, 0x0114	; 0x800114 <mode_sel>
- 23c:	30 91 15 01 	lds	r19, 0x0115	; 0x800115 <mode_sel+0x1>
+	 if((mode_sel ^ mult) && (mode_sel == 2)){//if cur &prev are diff
+ 238:	20 91 1b 01 	lds	r18, 0x011B	; 0x80011b <mode_sel>
+ 23c:	30 91 1c 01 	lds	r19, 0x011C	; 0x80011c <mode_sel+0x1>
  240:	80 91 1f 01 	lds	r24, 0x011F	; 0x80011f <mult>
  244:	90 91 20 01 	lds	r25, 0x0120	; 0x800120 <mult+0x1>
  248:	28 17       	cp	r18, r24
  24a:	39 07       	cpc	r19, r25
  24c:	31 f0       	breq	.+12     	; 0x25a <bars+0x132>
- 24e:	80 91 14 01 	lds	r24, 0x0114	; 0x800114 <mode_sel>
- 252:	90 91 15 01 	lds	r25, 0x0115	; 0x800115 <mode_sel+0x1>
+ 24e:	80 91 1b 01 	lds	r24, 0x011B	; 0x80011b <mode_sel>
+ 252:	90 91 1c 01 	lds	r25, 0x011C	; 0x80011c <mode_sel+0x1>
  256:	02 97       	sbiw	r24, 0x02	; 2
  258:	c1 f0       	breq	.+48     	; 0x28a <bars+0x162>
 	    mode_sel = 0;//and prev isn't = 1 then two modes are selected
@@ -407,8 +407,8 @@ return ;
 	    mode_sel = 4;		//If not, then change mode
  25a:	84 e0       	ldi	r24, 0x04	; 4
  25c:	90 e0       	ldi	r25, 0x00	; 0
- 25e:	90 93 15 01 	sts	0x0115, r25	; 0x800115 <mode_sel+0x1>
- 262:	80 93 14 01 	sts	0x0114, r24	; 0x800114 <mode_sel>
+ 25e:	90 93 1c 01 	sts	0x011C, r25	; 0x80011c <mode_sel+0x1>
+ 262:	80 93 1b 01 	sts	0x011B, r24	; 0x80011b <mode_sel>
  266:	c4 cf       	rjmp	.-120    	; 0x1f0 <bars+0xc8>
 	 }
 	 else
@@ -416,25 +416,25 @@ return ;
          break;
       case 2:
 	 if((mode_sel ^ mult) && (mode_sel == 4)){//if cur &prev are diff
- 268:	20 91 14 01 	lds	r18, 0x0114	; 0x800114 <mode_sel>
- 26c:	30 91 15 01 	lds	r19, 0x0115	; 0x800115 <mode_sel+0x1>
+ 268:	20 91 1b 01 	lds	r18, 0x011B	; 0x80011b <mode_sel>
+ 26c:	30 91 1c 01 	lds	r19, 0x011C	; 0x80011c <mode_sel+0x1>
  270:	80 91 1f 01 	lds	r24, 0x011F	; 0x80011f <mult>
  274:	90 91 20 01 	lds	r25, 0x0120	; 0x800120 <mult+0x1>
  278:	28 17       	cp	r18, r24
  27a:	39 07       	cpc	r19, r25
  27c:	59 f0       	breq	.+22     	; 0x294 <bars+0x16c>
- 27e:	80 91 14 01 	lds	r24, 0x0114	; 0x800114 <mode_sel>
- 282:	90 91 15 01 	lds	r25, 0x0115	; 0x800115 <mode_sel+0x1>
+ 27e:	80 91 1b 01 	lds	r24, 0x011B	; 0x80011b <mode_sel>
+ 282:	90 91 1c 01 	lds	r25, 0x011C	; 0x80011c <mode_sel+0x1>
  286:	04 97       	sbiw	r24, 0x04	; 4
  288:	29 f4       	brne	.+10     	; 0x294 <bars+0x16c>
 	    mode_sel = 2;		//If not, then change mode
          
          break;
       case 4:
-	 if((mode_sel ^ mult) && ((mode_sel == 2))){//if cur &prev are diff
+	 if((mode_sel ^ mult) && (mode_sel == 2)){//if cur &prev are diff
 	    mode_sel = 0;//and prev isn't = 1 then two modes are selected
- 28a:	10 92 15 01 	sts	0x0115, r1	; 0x800115 <mode_sel+0x1>
- 28e:	10 92 14 01 	sts	0x0114, r1	; 0x800114 <mode_sel>
+ 28a:	10 92 1c 01 	sts	0x011C, r1	; 0x80011c <mode_sel+0x1>
+ 28e:	10 92 1b 01 	sts	0x011B, r1	; 0x80011b <mode_sel>
  292:	ae cf       	rjmp	.-164    	; 0x1f0 <bars+0xc8>
       case 2:
 	 if((mode_sel ^ mult) && (mode_sel == 4)){//if cur &prev are diff
@@ -444,17 +444,17 @@ return ;
 	    mode_sel = 2;		//If not, then change mode
  294:	82 e0       	ldi	r24, 0x02	; 2
  296:	90 e0       	ldi	r25, 0x00	; 0
- 298:	90 93 15 01 	sts	0x0115, r25	; 0x800115 <mode_sel+0x1>
- 29c:	80 93 14 01 	sts	0x0114, r24	; 0x800114 <mode_sel>
+ 298:	90 93 1c 01 	sts	0x011C, r25	; 0x80011c <mode_sel+0x1>
+ 29c:	80 93 1b 01 	sts	0x011B, r24	; 0x80011b <mode_sel>
  2a0:	a7 cf       	rjmp	.-178    	; 0x1f0 <bars+0xc8>
    	 mult = (1<<i);			//mult gets 2^i
       }
    }
    PORTB &= 0x00;
    if(mult == 128){			//Button 8 toggles base 10 and 16
-      hex = !(hex);			//on the LED display
+      alarm = !(alarm);			//on the LED display
  2a2:	80 e0       	ldi	r24, 0x00	; 0
- 2a4:	80 93 21 01 	sts	0x0121, r24	; 0x800121 <hex>
+ 2a4:	80 93 22 01 	sts	0x0122, r24	; 0x800122 <alarm>
  2a8:	83 cf       	rjmp	.-250    	; 0x1b0 <bars+0x88>
 
 000002aa <read_encoder>:
@@ -506,8 +506,8 @@ uint8_t spi_read() {
    PORTD |= 0x02;	//CLK_INH high
  2cc:	91 9a       	sbi	0x12, 1	; 18
    value = mode_sel;
- 2ce:	20 91 14 01 	lds	r18, 0x0114	; 0x800114 <mode_sel>
- 2d2:	30 91 15 01 	lds	r19, 0x0115	; 0x800115 <mode_sel+0x1>
+ 2ce:	20 91 1b 01 	lds	r18, 0x011B	; 0x80011b <mode_sel>
+ 2d2:	30 91 1c 01 	lds	r19, 0x011C	; 0x80011c <mode_sel+0x1>
  2d6:	82 2f       	mov	r24, r18
    ec_a = encoder_value & 0x03;  //Only grabs these bits 0000_0011
  2d8:	69 2f       	mov	r22, r25
@@ -598,9 +598,9 @@ return value;
  344:	2b e3       	ldi	r18, 0x3B	; 59
  346:	20 93 24 01 	sts	0x0124, r18	; 0x800124 <min_count>
 	    hour_count--;
- 34a:	20 91 17 01 	lds	r18, 0x0117	; 0x800117 <hour_count>
+ 34a:	20 91 15 01 	lds	r18, 0x0115	; 0x800115 <hour_count>
  34e:	21 50       	subi	r18, 0x01	; 1
- 350:	20 93 17 01 	sts	0x0117, r18	; 0x800117 <hour_count>
+ 350:	20 93 15 01 	sts	0x0115, r18	; 0x800115 <hour_count>
  354:	dd cf       	rjmp	.-70     	; 0x310 <read_encoder+0x66>
          hour_count = hour_count + 1;//value = value;
 	 if(hour_count == 24)
@@ -608,16 +608,16 @@ return value;
       }
       else if(!(EC_a_prev) && (ec_a == 0x02)){//Determines CCW rotation
 	 hour_count = hour_count - 1;//value = -(value);
- 356:	20 91 17 01 	lds	r18, 0x0117	; 0x800117 <hour_count>
+ 356:	20 91 15 01 	lds	r18, 0x0115	; 0x800115 <hour_count>
  35a:	21 50       	subi	r18, 0x01	; 1
- 35c:	20 93 17 01 	sts	0x0117, r18	; 0x800117 <hour_count>
+ 35c:	20 93 15 01 	sts	0x0115, r18	; 0x800115 <hour_count>
 	 if(hour_count < 0)
- 360:	20 91 17 01 	lds	r18, 0x0117	; 0x800117 <hour_count>
+ 360:	20 91 15 01 	lds	r18, 0x0115	; 0x800115 <hour_count>
  364:	27 ff       	sbrs	r18, 7
  366:	d4 cf       	rjmp	.-88     	; 0x310 <read_encoder+0x66>
 	    hour_count = 23; 
  368:	27 e1       	ldi	r18, 0x17	; 23
- 36a:	20 93 17 01 	sts	0x0117, r18	; 0x800117 <hour_count>
+ 36a:	20 93 15 01 	sts	0x0115, r18	; 0x800115 <hour_count>
  36e:	d0 cf       	rjmp	.-96     	; 0x310 <read_encoder+0x66>
    ec_b = encoder_value & 0x0C;  //Only grabs these bits 0000_1100 
    ec_b = (ec_b >> 2);
@@ -625,15 +625,15 @@ return value;
    if(ec_a != EC_a_prev){ //Compares curr encoder value to ast value 
       if(!(EC_a_prev) && (ec_a == 0x01)){//Determines CW rotation
          hour_count = hour_count + 1;//value = value;
- 370:	20 91 17 01 	lds	r18, 0x0117	; 0x800117 <hour_count>
+ 370:	20 91 15 01 	lds	r18, 0x0115	; 0x800115 <hour_count>
  374:	2f 5f       	subi	r18, 0xFF	; 255
- 376:	20 93 17 01 	sts	0x0117, r18	; 0x800117 <hour_count>
+ 376:	20 93 15 01 	sts	0x0115, r18	; 0x800115 <hour_count>
 	 if(hour_count == 24)
- 37a:	20 91 17 01 	lds	r18, 0x0117	; 0x800117 <hour_count>
+ 37a:	20 91 15 01 	lds	r18, 0x0115	; 0x800115 <hour_count>
  37e:	28 31       	cpi	r18, 0x18	; 24
  380:	39 f6       	brne	.-114    	; 0x310 <read_encoder+0x66>
 	    hour_count = 0;
- 382:	10 92 17 01 	sts	0x0117, r1	; 0x800117 <hour_count>
+ 382:	10 92 15 01 	sts	0x0115, r1	; 0x800115 <hour_count>
  386:	c4 cf       	rjmp	.-120    	; 0x310 <read_encoder+0x66>
       else	//If not one of the state changes above, do nothing
 	 value = 0;
@@ -652,9 +652,9 @@ return value;
 	    min_count = 0; 
  39c:	10 92 24 01 	sts	0x0124, r1	; 0x800124 <min_count>
 	    hour_count++;
- 3a0:	20 91 17 01 	lds	r18, 0x0117	; 0x800117 <hour_count>
+ 3a0:	20 91 15 01 	lds	r18, 0x0115	; 0x800115 <hour_count>
  3a4:	2f 5f       	subi	r18, 0xFF	; 255
- 3a6:	20 93 17 01 	sts	0x0117, r18	; 0x800117 <hour_count>
+ 3a6:	20 93 15 01 	sts	0x0115, r18	; 0x800115 <hour_count>
  3aa:	b2 cf       	rjmp	.-156    	; 0x310 <read_encoder+0x66>
 
 000003ac <__vector_16>:
@@ -754,20 +754,20 @@ void clock_time(){ //by default we use military time
    }//secs
    
    if(!mil){
- 438:	80 91 16 01 	lds	r24, 0x0116	; 0x800116 <mil>
+ 438:	80 91 14 01 	lds	r24, 0x0114	; 0x800114 <mil>
  43c:	81 11       	cpse	r24, r1
  43e:	0e c0       	rjmp	.+28     	; 0x45c <clock_time+0x44>
       if(hour_count > 12){
- 440:	80 91 17 01 	lds	r24, 0x0117	; 0x800117 <hour_count>
+ 440:	80 91 15 01 	lds	r24, 0x0115	; 0x800115 <hour_count>
  444:	8d 30       	cpi	r24, 0x0D	; 13
  446:	2c f0       	brlt	.+10     	; 0x452 <clock_time+0x3a>
          hour_count = hour_count - 12;
- 448:	80 91 17 01 	lds	r24, 0x0117	; 0x800117 <hour_count>
+ 448:	80 91 15 01 	lds	r24, 0x0115	; 0x800115 <hour_count>
  44c:	8c 50       	subi	r24, 0x0C	; 12
- 44e:	80 93 17 01 	sts	0x0117, r24	; 0x800117 <hour_count>
+ 44e:	80 93 15 01 	sts	0x0115, r24	; 0x800115 <hour_count>
       }
       if(hour_count == 0){
- 452:	80 91 17 01 	lds	r24, 0x0117	; 0x800117 <hour_count>
+ 452:	80 91 15 01 	lds	r24, 0x0115	; 0x800115 <hour_count>
  456:	88 23       	and	r24, r24
  458:	09 f4       	brne	.+2      	; 0x45c <clock_time+0x44>
  45a:	56 c0       	rjmp	.+172    	; 0x508 <clock_time+0xf0>
@@ -776,7 +776,7 @@ void clock_time(){ //by default we use military time
       
    }
       segment_data[4] = dec_to_7seg[hour_count/10];
- 45c:	90 91 17 01 	lds	r25, 0x0117	; 0x800117 <hour_count>
+ 45c:	90 91 15 01 	lds	r25, 0x0115	; 0x800115 <hour_count>
  460:	87 e6       	ldi	r24, 0x67	; 103
  462:	98 02       	muls	r25, r24
  464:	e1 2d       	mov	r30, r1
@@ -791,9 +791,9 @@ void clock_time(){ //by default we use military time
  476:	e0 50       	subi	r30, 0x00	; 0
  478:	ff 4f       	sbci	r31, 0xFF	; 255
  47a:	90 81       	ld	r25, Z
- 47c:	90 93 1c 01 	sts	0x011C, r25	; 0x80011c <__data_end+0x4>
+ 47c:	90 93 1a 01 	sts	0x011A, r25	; 0x80011a <__data_end+0x4>
       segment_data[3] = dec_to_7seg[hour_count%10];
- 480:	e0 91 17 01 	lds	r30, 0x0117	; 0x800117 <hour_count>
+ 480:	e0 91 15 01 	lds	r30, 0x0115	; 0x800115 <hour_count>
  484:	e8 02       	muls	r30, r24
  486:	81 2d       	mov	r24, r1
  488:	11 24       	eor	r1, r1
@@ -811,14 +811,14 @@ void clock_time(){ //by default we use military time
  4a0:	e0 50       	subi	r30, 0x00	; 0
  4a2:	ff 4f       	sbci	r31, 0xFF	; 255
  4a4:	80 81       	ld	r24, Z
- 4a6:	80 93 1b 01 	sts	0x011B, r24	; 0x80011b <__data_end+0x3>
+ 4a6:	80 93 19 01 	sts	0x0119, r24	; 0x800119 <__data_end+0x3>
       if(sec_count%2){segment_data[2] = 0b100;}		//Turn colon on
  4aa:	80 91 25 01 	lds	r24, 0x0125	; 0x800125 <sec_count>
  4ae:	80 fd       	sbrc	r24, 0
  4b0:	3e c0       	rjmp	.+124    	; 0x52e <clock_time+0x116>
       else {segment_data[2] = 0b111;}		//Turn colon off
  4b2:	87 e0       	ldi	r24, 0x07	; 7
- 4b4:	80 93 1a 01 	sts	0x011A, r24	; 0x80011a <__data_end+0x2>
+ 4b4:	80 93 18 01 	sts	0x0118, r24	; 0x800118 <__data_end+0x2>
       segment_data[1] = dec_to_7seg[min_count/10];
  4b8:	90 91 24 01 	lds	r25, 0x0124	; 0x800124 <min_count>
  4bc:	87 e6       	ldi	r24, 0x67	; 103
@@ -835,7 +835,7 @@ void clock_time(){ //by default we use military time
  4d2:	e0 50       	subi	r30, 0x00	; 0
  4d4:	ff 4f       	sbci	r31, 0xFF	; 255
  4d6:	90 81       	ld	r25, Z
- 4d8:	90 93 19 01 	sts	0x0119, r25	; 0x800119 <__data_end+0x1>
+ 4d8:	90 93 17 01 	sts	0x0117, r25	; 0x800117 <__data_end+0x1>
       segment_data[0] = dec_to_7seg[min_count%10];
  4dc:	e0 91 24 01 	lds	r30, 0x0124	; 0x800124 <min_count>
  4e0:	e8 02       	muls	r30, r24
@@ -855,7 +855,7 @@ void clock_time(){ //by default we use military time
  4fc:	e0 50       	subi	r30, 0x00	; 0
  4fe:	ff 4f       	sbci	r31, 0xFF	; 255
  500:	80 81       	ld	r24, Z
- 502:	80 93 18 01 	sts	0x0118, r24	; 0x800118 <__data_end>
+ 502:	80 93 16 01 	sts	0x0116, r24	; 0x800116 <__data_end>
  506:	08 95       	ret
    if(!mil){
       if(hour_count > 12){
@@ -864,7 +864,7 @@ void clock_time(){ //by default we use military time
       if(hour_count == 0){
          hour_count = 12;
  508:	8c e0       	ldi	r24, 0x0C	; 12
- 50a:	80 93 17 01 	sts	0x0117, r24	; 0x800117 <hour_count>
+ 50a:	80 93 15 01 	sts	0x0115, r24	; 0x800115 <hour_count>
  50e:	a6 cf       	rjmp	.-180    	; 0x45c <clock_time+0x44>
    
    if(sec_count > 59){
@@ -872,18 +872,18 @@ void clock_time(){ //by default we use military time
       sec_count = 0;
       if(min_count > 59){
 	 hour_count++;
- 510:	80 91 17 01 	lds	r24, 0x0117	; 0x800117 <hour_count>
+ 510:	80 91 15 01 	lds	r24, 0x0115	; 0x800115 <hour_count>
  514:	8f 5f       	subi	r24, 0xFF	; 255
- 516:	80 93 17 01 	sts	0x0117, r24	; 0x800117 <hour_count>
+ 516:	80 93 15 01 	sts	0x0115, r24	; 0x800115 <hour_count>
 	 min_count = 0;
  51a:	10 92 24 01 	sts	0x0124, r1	; 0x800124 <min_count>
 	 if(hour_count > 23){
- 51e:	80 91 17 01 	lds	r24, 0x0117	; 0x800117 <hour_count>
+ 51e:	80 91 15 01 	lds	r24, 0x0115	; 0x800115 <hour_count>
  522:	88 31       	cpi	r24, 0x18	; 24
  524:	0c f4       	brge	.+2      	; 0x528 <clock_time+0x110>
  526:	88 cf       	rjmp	.-240    	; 0x438 <clock_time+0x20>
 	    hour_count = 0;
- 528:	10 92 17 01 	sts	0x0117, r1	; 0x800117 <hour_count>
+ 528:	10 92 15 01 	sts	0x0115, r1	; 0x800115 <hour_count>
  52c:	85 cf       	rjmp	.-246    	; 0x438 <clock_time+0x20>
       }
       
@@ -892,7 +892,7 @@ void clock_time(){ //by default we use military time
       segment_data[3] = dec_to_7seg[hour_count%10];
       if(sec_count%2){segment_data[2] = 0b100;}		//Turn colon on
  52e:	84 e0       	ldi	r24, 0x04	; 4
- 530:	80 93 1a 01 	sts	0x011A, r24	; 0x80011a <__data_end+0x2>
+ 530:	80 93 18 01 	sts	0x0118, r24	; 0x800118 <__data_end+0x2>
  534:	c1 cf       	rjmp	.-126    	; 0x4b8 <clock_time+0xa0>
 
 00000536 <send_lcd>:
@@ -2950,7 +2950,7 @@ void spi_init(){
    while(1){
       clock_time();
  ee2:	0e 94 0c 02 	call	0x418	; 0x418 <clock_time>
- ee6:	e8 e1       	ldi	r30, 0x18	; 24
+ ee6:	e6 e1       	ldi	r30, 0x16	; 22
  ee8:	f1 e0       	ldi	r31, 0x01	; 1
  eea:	80 e0       	ldi	r24, 0x00	; 0
 
@@ -2960,9 +2960,9 @@ void spi_init(){
  ef0:	99 23       	and	r25, r25
  ef2:	29 f0       	breq	.+10     	; 0xefe <main+0x5c>
 	    segment_data[2] &= 0b011;
- ef4:	90 91 1a 01 	lds	r25, 0x011A	; 0x80011a <__data_end+0x2>
+ ef4:	90 91 18 01 	lds	r25, 0x0118	; 0x800118 <__data_end+0x2>
  ef8:	93 70       	andi	r25, 0x03	; 3
- efa:	90 93 1a 01 	sts	0x011A, r25	; 0x80011a <__data_end+0x2>
+ efa:	90 93 18 01 	sts	0x0118, r25	; 0x800118 <__data_end+0x2>
 	 }
 	 PORTA = segment_data[j];	//Writes the segment data to PORTA aka the segments
  efe:	91 91       	ld	r25, Z+

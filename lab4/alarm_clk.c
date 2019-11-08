@@ -41,7 +41,7 @@ volatile uint8_t alarm = 0;
 volatile uint8_t hex = 0;
 volatile uint16_t mult = 0;
 volatile int16_t sum = 0;
-volatile int16_t mode_sel = 1;
+volatile int16_t mode_sel = 0;
 volatile int16_t prev_mode = 5;
 volatile int8_t EC_a_prev;
 volatile int8_t EC_b_prev;
@@ -145,7 +145,7 @@ void bars() {
    }
    PORTB &= 0x00;
    if(mult == 128){			//Button 8 toggles base 10 and 16
-      hex = !(hex);			//on the LED display
+      alarm = !(alarm);			//on the LED display
    }
    if(mult > 4) {			//I only want values from the
       mult = 0;				//first three buttons
@@ -169,7 +169,7 @@ void bars() {
          
          break;
       case 4:
-	 if((mode_sel ^ mult) && ((mode_sel == 2))){//if cur &prev are diff
+	 if((mode_sel ^ mult) && (mode_sel == 2)){//if cur &prev are diff
 	    mode_sel = 0;//and prev isn't = 1 then two modes are selected
 	 }
 	 else
