@@ -73,6 +73,7 @@ void tcnt0_init(){
    TIMSK |= (1<<TOIE0);			//enable interrupts
    TCCR0 |= (1<<CS00);			//normal mode, no prescale
 }
+
 /**********************************************************************
 Function:
 Description:
@@ -87,6 +88,19 @@ void tcnt1_init(){
 //   TCNT1 = 0x00; 		//Initialize TNCT1 to 0
 
 }
+
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
+void tcnt2_init(){
+   ASSR |= (1<<AS0);
+   TIMSK |= (1<<TOIE0);			//enable interrupts
+   TCCR2 |= (1<<WGM21) | (1<<WGM20)| (1<<CS20) | (1<<COM21);			//normal mode, no prescale
+   OCR2  |= 0xD0;
+}
+
 /**********************************************************************
 Function:
 Description:
@@ -469,6 +483,15 @@ void change_alarm_state(){
 }
 
 /**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
+ISR(ADC_vect){
+
+}
+
+/**********************************************************************
 Function: main()
 Description: Program interrupts are enabled, initial port declarations,
 	and while loop are defined. The LED display is updated continuously 
@@ -478,6 +501,7 @@ Parameters: NA
 int main() {
    tcnt0_init();
    tcnt1_init();
+   tcnt2_init();
    tcnt3_init();
    port_init();
    
