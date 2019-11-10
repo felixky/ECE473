@@ -33,10 +33,14 @@ Descriptiion: In Lab 4, I will be implementing an alarm clock on the
 
 volatile uint8_t sec_count = 0;
 volatile int8_t min_count = 0;
-volatile int8_t hour_count = 12;
+volatile int8_t hour_count = 0;
+volatile uint8_t a_sec_count = 0;
+volatile int8_t a_min_count = 0;
+volatile int8_t a_hour_count = 0;
 volatile uint8_t am_pm = 0;		//0=am 1=pm
 volatile uint8_t mil = 1;		//military time is on by default
 volatile uint8_t alarm = 0;
+volatile uint8_t snooze = 0;
 
 volatile uint8_t hex = 0;
 volatile uint16_t mult = 0;
@@ -57,6 +61,39 @@ void spi_init(){
    SPCR |= (1<<MSTR) | (1<<CPOL) | (1<<CPHA) | (1<<SPE);//master mode, clk low on idle,
 // leading edge smaple , and spi enable 
    SPSR |= (1<<SPI2X);			//double speed operation  
+}
+
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
+void tcnt0_init(){
+   ASSR |= (1<<AS0);
+   TIMSK |= (1<<TOIE0);			//enable interrupts
+   TCCR0 |= (1<<CS00);			//normal mode, no prescale
+}
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
+void tcnt1_init(){
+//   TCCR1B
+//   TCCR1A
+//   TIMSK
+//   ETMISK
+//   TIFR
+//   TCNT1 = 0x00; 		//Initialize TNCT1 to 0
+
+}
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
+void tcnt3_init(){
+
 }
 
 /**********************************************************************
@@ -150,6 +187,9 @@ void bars() {
    if(mult > 4) {			//I only want values from the
       mult = 0;				//first three buttons
    }
+   if(mult == 4){
+      snooze = 1;
+   }
    //This switch statement is used to enable a 'toggle' functionality
    //so that modes can be selected an deselected
    switch(mult) {
@@ -161,20 +201,20 @@ void bars() {
 	    mode_sel = 1;		//If not, then change mode
          break;
       case 2:
-	 if((mode_sel ^ mult) && (mode_sel == 4)){//if cur &prev are diff
+	 if((mode_sel ^ mult) == 0 ){//if((mode_sel ^ mult) && (mode_sel == 4)){//if cur &prev are diff
 	    mode_sel = 0;//and prev isn't = 1 then two modes are selected
 	 }
 	 else
 	    mode_sel = 2;		//If not, then change mode
          
          break;
-      case 4:
+/*      case 4:
 	 if((mode_sel ^ mult) && (mode_sel == 2)){//if cur &prev are diff
 	    mode_sel = 0;//and prev isn't = 1 then two modes are selected
 	 }
 	 else
 	    mode_sel = 4;		//If not, then change mode
-         break;
+         break;*/
       default:
 	 mode_sel = mode_sel;		//no/invalid button press
    }   
@@ -214,40 +254,87 @@ int8_t read_encoder() {
    ec_a = encoder_value & 0x03;  //Only grabs these bits 0000_0011
    ec_b = encoder_value & 0x0C;  //Only grabs these bits 0000_1100 
    ec_b = (ec_b >> 2);
-if(mode_sel == 1){
-   if(ec_a != EC_a_prev){ //Compares curr encoder value to ast value 
-      if(!(EC_a_prev) && (ec_a == 0x01)){//Determines CW rotation
-         hour_count = hour_count + 1;//value = value;
-	 if(hour_count == 24)
-	    hour_count = 0;
-      }
-      else if(!(EC_a_prev) && (ec_a == 0x02)){//Determines CCW rotation
-	 hour_count = hour_count - 1;//value = -(value);
-	 if(hour_count < 0)
-	    hour_count = 23; 
-      }
-      else	//If not one of the state changes above, do nothing
+
+//mode_sel == 1 means that the user has selected the "time change" mode
+   if(mode_sel == 1){
+      if(ec_a != EC_a_prev){ //Compares curr encoder value to ast value 
+         if(!(EC_a_prev) && (ec_a == 0x01)){//Determines CW rotation
+            hour_count = hour_count + 1;//value = value;
+	    if(hour_count == 24)
+	       hour_count = 0;
+         }
+         else if(!(EC_a_prev) && (ec_a == 0x02)){//Determines CCW rotation
+	    hour_count = hour_count - 1;//value = -(value);
+	    if(hour_count < 0)
+	       hour_count = 23; 
+         }
+         else	//If not one of the state changes above, do nothing
 	 value = 0;
+      }
+      else {	//This is for encoder B
+         if(!(EC_b_prev) && (ec_b == 0x01)){//CW Rotation
+            min_count = min_count + 1;//value = value;
+	    if(min_count == 60){
+	       min_count = 0; 
+	       hour_count++;
+	       if(hour_count > 23)
+	          hour_count = 0;
+	    }
+         }
+         else if(!(EC_b_prev) && (ec_b == 0x02)){//CCW Rotation
+	    min_count = min_count - 1; //value = -(value);
+	    if(min_count < 0){
+	       min_count = 59;
+	       hour_count--;
+	       if(hour_count < 0){
+	          hour_count = 23;
+	       }
+	    }
+         }
+         else
+	    value = 0;
+      }
    }
-   else {	//This is for encoder B
-      if(!(EC_b_prev) && (ec_b == 0x01)){//CW Rotation
-         min_count = min_count + 1;//value = value;
-	 if(min_count == 60){
-	    min_count = 0; 
-	    hour_count++;
-	 }
-      }
-      else if(!(EC_b_prev) && (ec_b == 0x02)){//CCW Rotation
-	 min_count = min_count - 1; //value = -(value);
-	 if(min_count < 0){
-	    min_count = 59;
-	    hour_count--;
-	 }
-      }
-      else
+//mode_sel == 1 means that the user has selected the "time change" mode
+   if(mode_sel == 2){
+      if(ec_a != EC_a_prev){ //Compares curr encoder value to ast value 
+         if(!(EC_a_prev) && (ec_a == 0x01)){//Determines CW rotation
+            a_hour_count = a_hour_count + 1;//value = value;
+	    if(a_hour_count == 24)
+	       a_hour_count = 0;
+         }
+         else if(!(EC_a_prev) && (ec_a == 0x02)){//Determines CCW rotation
+	    a_hour_count = a_hour_count - 1;//value = -(value);
+	    if(a_hour_count < 0)
+	       a_hour_count = 23; 
+         }
+         else	//If not one of the state changes above, do nothing
 	 value = 0;
+      }
+      else {	//This is for encoder B
+         if(!(EC_b_prev) && (ec_b == 0x01)){//CW Rotation
+            a_min_count = a_min_count + 1;//value = value;
+	    if(a_min_count == 60){
+	       a_min_count = 0; 
+	       a_hour_count++;
+	       if(a_hour_count > 23)
+	          a_hour_count = 0;
+	    }
+         }
+         else if(!(EC_b_prev) && (ec_b == 0x02)){//CCW Rotation
+	    a_min_count = a_min_count - 1; //value = -(value);
+	    if(a_min_count < 0){
+	       a_min_count = 59;
+	       a_hour_count--;
+	       if(a_hour_count < 0){
+	          a_hour_count = 23;
+	       }
+	    }
+         }
+         else
+	    value = 0;
+      }
    }
-}
 //Saves previous values into volatile variables
 EC_a_prev = ec_a;
 EC_b_prev = ec_b;
@@ -272,11 +359,6 @@ ISR(TIMER0_OVF_vect) {
    }
    bars();  
    read_encoder();      
-//      sum = sum + read_encoder();
-//      if(sum>1023)
-//	sum = sum % 1023;
-//      if(sum<0)
-//	sum = 1023; //No overflow. If less than 0 always go to 1023.
 
 }
 
@@ -299,21 +381,91 @@ void clock_time(){ //by default we use military time
       }//mins
    }//secs
    
-   if(!mil){
+/*   if(!mil){
       if(hour_count > 12){
          hour_count = hour_count - 12;
       }
       if(hour_count == 0){
          hour_count = 12;
+      }    
+   }*/
+
+//This is where the digits are written to the data array
+      if(mode_sel == 2){
+         segment_data[4] = dec_to_7seg[a_hour_count/10];
+         segment_data[3] = dec_to_7seg[a_hour_count%10];
+         if(sec_count%2){segment_data[2] = 0b100;}		//Turn colon on
+         else {segment_data[2] = 0b111;}		//Turn colon off
+         segment_data[1] = dec_to_7seg[a_min_count/10];
+         segment_data[0] = dec_to_7seg[a_min_count%10];
       }
-      
+      else{
+         segment_data[4] = dec_to_7seg[hour_count/10];
+         segment_data[3] = dec_to_7seg[hour_count%10];
+         if(sec_count%2){segment_data[2] = 0b100;}		//Turn colon on
+         else {segment_data[2] = 0b111;}		//Turn colon off
+         segment_data[1] = dec_to_7seg[min_count/10];
+         segment_data[0] = dec_to_7seg[min_count%10];
+      }
+}
+
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
+void port_init(){
+   DDRC |= 0xFF; 
+   DDRB |= 0xF0;				//PB4-6 is SEL0-2, PB7 is PWM
+   DDRE |= 0x40;				//PE6 is SHIFT_LD_N
+   DDRD |= 0x0B;				//PE1 is CLK_INH and PE2 is SRCLK
+   PORTC |= 0x00;
+   PORTD |= 0x02;
+   PORTE |= 0xFF;
+}
+
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
+void change_alarm_state(){
+   static uint8_t curr = 0;
+
+   if(alarm && (curr == 0)){
+      if((a_hour_count > 9) && (a_min_count > 9)){
+         string2lcd("ALARM at ");
+         lcd_int16(a_hour_count, 2, 0, 0, 0);
+         string2lcd(":");
+         lcd_int16(a_min_count, 2, 0, 0, 0);
+      }
+      else if(a_hour_count > 9){
+         string2lcd("ALARM at ");
+         lcd_int16(a_hour_count, 2, 0, 0, 0);
+         string2lcd(":");
+         string2lcd("0");
+         lcd_int16(a_min_count, 1, 0, 0, 0);
+      }
+      else if(a_min_count > 9){
+         string2lcd("ALARM at");
+         lcd_int16(a_hour_count, 2, 0, 0, 0);
+         string2lcd(":");
+         lcd_int16(a_min_count, 2, 0, 0, 0);
+      }
+      else {
+         string2lcd("ALARM at");
+         lcd_int16(a_hour_count, 2, 0, 0, 0);
+         string2lcd(":");
+         string2lcd("0");
+         lcd_int16(a_min_count, 1, 0, 0, 0);
+      }
+      curr = 1;
    }
-      segment_data[4] = dec_to_7seg[hour_count/10];
-      segment_data[3] = dec_to_7seg[hour_count%10];
-      if(sec_count%2){segment_data[2] = 0b100;}		//Turn colon on
-      else {segment_data[2] = 0b111;}		//Turn colon off
-      segment_data[1] = dec_to_7seg[min_count/10];
-      segment_data[0] = dec_to_7seg[min_count%10];
+   else if((!alarm) && (curr == 1)){
+      curr = 0;
+      clear_display();
+   }
+   else{}
 }
 
 /**********************************************************************
@@ -324,33 +476,17 @@ Description: Program interrupts are enabled, initial port declarations,
 Parameters: NA
 **********************************************************************/
 int main() {
-   ASSR |= (1<<AS0);
-   TIMSK |= (1<<TOIE0);			//enable interrupts
-   TCCR0 |= (1<<CS00);			//normal mode, no prescale
-
-//TNCT1 init
-//   TCCR1B
-//   TCCR1A
-//   TIMSK
-//   ETMISK
-//   TIFR
-//   TCNT1 = 0x00; 		//Initialize TNCT1 to 0
-
-   DDRC |= 0xFF; 
-   DDRB |= 0xF0;				//PB4-6 is SEL0-2, PB7 is PWM
-   DDRE |= 0x40;				//PE6 is SHIFT_LD_N
-   DDRD |= 0x0B;				//PE1 is CLK_INH and PE2 is SRCLK
-   PORTC |= 0x00;
-   PORTD |= 0x02;
-   PORTE |= 0xFF;
-
-   spi_init();				//Initalize SPI
-
-   sei();				//Enable interrupts
+   tcnt0_init();
+   tcnt1_init();
+   tcnt3_init();
+   port_init();
    
+   spi_init();				//Initalize SPI
+   lcd_init();
+   sei();				//Enable interrupts
    while(1){
       clock_time();
-
+      change_alarm_state();
       for( int j = 0; j < 5; j++) {	//cycles through each of the five digits
          if(alarm){
 	    segment_data[2] &= 0b011;
