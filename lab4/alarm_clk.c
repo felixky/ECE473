@@ -80,13 +80,13 @@ Description:
 Parameters:
 **********************************************************************/
 void tcnt1_init(){
-//   TCCR1B
-//   TCCR1A
-//   TIMSK
-//   ETMISK
-//   TIFR
-//   TCNT1 = 0x00; 		//Initialize TNCT1 to 0
-
+//   TCCR1A |= (1<<COM1A0); //Toggle on OCR1A match
+//   TCCR1B |= (1<<CS11) | (1<<CS10) | (1<<WGM12);		//CTC mode, 64bit prescaler
+   TCCR1C = 0x00;
+   TIMSK  |= (1<<OCIE1A);// | (1<<TOIE1); 
+   TIFR   |= (1<<OCF1A);// | (1<<TOV1);
+   TCNT1 = 0x0000; 		//Initialize TNCT1 to 0
+   OCR1A = 0x0080;
 }
 
 /**********************************************************************
@@ -95,10 +95,7 @@ Description:
 Parameters:
 **********************************************************************/
 void tcnt2_init(){
-   ASSR |= (1<<AS0);
-   TIMSK |= (1<<TOIE0);			//enable interrupts
    TCCR2 |= (1<<WGM21) | (1<<WGM20)| (1<<CS20) | (1<<COM21);			//normal mode, no prescale
-   OCR2  |= 0xD0;
 }
 
 /**********************************************************************
@@ -107,7 +104,14 @@ Description:
 Parameters:
 **********************************************************************/
 void tcnt3_init(){
-
+   TCCR3A |= (1<<COM3A0); //Toggle on OCR1A match
+   TCCR3B |= (1<<CS31) | (1<<CS30) | (1<<WGM32) | (1<<WGM30);		//Fast PWM mode, 64bit prescaler
+   TCCR3C = 0x00;
+   TIMSK  |= (1<<OCIE3A);// | (1<<TOIE1); 
+   TIFR   |= (1<<OCF3A);// | (1<<TOV1);
+   TCNT3 = 0x0000; 		//Initialize TNCT1 to 0
+   OCR1A = 0x0080;
+  
 }
 
 /**********************************************************************
@@ -383,13 +387,13 @@ Parameters:
 **********************************************************************/
 void clock_time(){ //by default we use military time
    
-   if(sec_count > 59){
+   if(sec_count == 60){
       min_count++;
       sec_count = 0;
-      if(min_count > 59){
+      if(min_count == 60){
 	 hour_count++;
 	 min_count = 0;
-	 if(hour_count > 23){
+	 if(hour_count == 24){
 	    hour_count = 0;
 	 }//hours	
       }//mins
@@ -433,7 +437,7 @@ void port_init(){
    DDRB |= 0xF0;				//PB4-6 is SEL0-2, PB7 is PWM
    DDRE |= 0x40;				//PE6 is SHIFT_LD_N
    DDRD |= 0x0B;				//PE1 is CLK_INH and PE2 is SRCLK
-   PORTC |= 0x00;
+   PORTC |= 0x01;
    PORTD |= 0x02;
    PORTE |= 0xFF;
 }
@@ -445,7 +449,6 @@ Parameters:
 **********************************************************************/
 void change_alarm_state(){
    static uint8_t curr = 0;
-
    if(alarm && (curr == 0)){
       if((a_hour_count > 9) && (a_min_count > 9)){
          string2lcd("ALARM at ");
@@ -487,8 +490,36 @@ Function:
 Description:
 Parameters:
 **********************************************************************/
-ISR(ADC_vect){
+void adc_init(){
+//Initalize ADC and its ports
+   DDRF  &= ~(_BV(DDF7)); //make port F bit 7 is ADC input  
+   PORTF &= ~(_BV(PF7));  //port F bit 7 pullups must be off
+   ADMUX |= (1<<REFS0) | (1<<MUX2)| (1<<MUX1)| (1<<MUX0); //single-ended, input PORTF bit 7, right adjusted, 10 bits
 
+   ADCSRA |= (1<<ADEN) | (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0);//ADC enabled, don't start yet, single shot mode 
+                             //division factor is 128 (125khz)
+}
+
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
+void fetch_adc(){
+   uint16_t adc_result;
+   uint16_t step;   
+   uint16_t step2;   
+   uint16_t step3;   
+
+   ADCSRA |= (1<<ADSC); //poke ADSC and start conversion
+   while(bit_is_clear(ADCSRA, ADIF)){} //spin while interrupt flag not set
+   ACSR |= (1<<ACI); //its done, clear flag by writing a one 
+   adc_result = ADC;                      //read the ADC output as 16 bits
+
+   step = adc_result/205;
+   step2 = step/(0.022);
+   step3 = 220 - step2;
+   OCR2 = step3;
 }
 
 /**********************************************************************
@@ -499,16 +530,18 @@ Description: Program interrupts are enabled, initial port declarations,
 Parameters: NA
 **********************************************************************/
 int main() {
+   spi_init();				//Initalize SPI
    tcnt0_init();
    tcnt1_init();
    tcnt2_init();
    tcnt3_init();
    port_init();
-   
-   spi_init();				//Initalize SPI
+   adc_init();
+
    lcd_init();
    sei();				//Enable interrupts
    while(1){
+      fetch_adc();	//put this into an ISR
       clock_time();
       change_alarm_state();
       for( int j = 0; j < 5; j++) {	//cycles through each of the five digits
@@ -518,8 +551,10 @@ int main() {
 	 PORTA = segment_data[j];	//Writes the segment data to PORTA aka the segments
          PORTB = j << 4;		//J is bound 0-4 and that value is shifted left 4 so that 
 				//the digit to be displayed is in pin 4, 5, and 6 
-         _delay_us(200);		//delay so that the display does not flicker
+         _delay_us(100);		//delay so that the display does not flicker
+         PORTA = 0xFF;
       }
+	PORTB = 0x00;;
    }
 return 0;
 }
