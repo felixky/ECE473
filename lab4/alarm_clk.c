@@ -80,13 +80,13 @@ Description:
 Parameters:
 **********************************************************************/
 void tcnt1_init(){
-//   TCCR1A |= (1<<COM1A0); //Toggle on OCR1A match
-//   TCCR1B |= (1<<CS11) | (1<<CS10) | (1<<WGM12);		//CTC mode, 64bit prescaler
+   TCCR1A |= 0x00;//(1<<COM1A0); //Toggle on OCR1A match
+   TCCR1B |= 0x00; //(1<<CS11) | (1<<CS10) | (1<<WGM12);		//CTC mode, 64bit prescaler
    TCCR1C = 0x00;
    TIMSK  |= (1<<OCIE1A);// | (1<<TOIE1); 
    TIFR   |= (1<<OCF1A);// | (1<<TOV1);
    TCNT1 = 0x0000; 		//Initialize TNCT1 to 0
-   OCR1A = 0x0080;
+   OCR1A = 0x80;
 }
 
 /**********************************************************************
@@ -104,13 +104,14 @@ Description:
 Parameters:
 **********************************************************************/
 void tcnt3_init(){
-   TCCR3A |= (1<<COM3A0); //Toggle on OCR1A match
-   TCCR3B |= (1<<CS31) | (1<<CS30) | (1<<WGM32) | (1<<WGM30);		//Fast PWM mode, 64bit prescaler
+   TCCR3A |= (1<<COM3A1);// | (1<<COM3A0); //Set on OCR1A match
+   TCCR3B |= (0<<CS31) | (1<<CS30) | (1<<WGM32) | (1<<WGM30);		//Fast PWM mode, 64bit prescaler
    TCCR3C = 0x00;
-   TIMSK  |= (1<<OCIE3A);// | (1<<TOIE1); 
-   TIFR   |= (1<<OCF3A);// | (1<<TOV1);
+   TIMSK  |= (1<<OCIE3A);
+   TIFR   |= (1<<OCF3A);
+   ICR3 = 159;			//Setting the TOP value of the PWM
    TCNT3 = 0x0000; 		//Initialize TNCT1 to 0
-   OCR1A = 0x0080;
+   OCR3A = 0;			//Makes PWM almost completly off
   
 }
 
@@ -201,6 +202,9 @@ void bars() {
    PORTB &= 0x00;
    if(mult == 128){			//Button 8 toggles base 10 and 16
       alarm = !(alarm);			//on the LED display
+   }
+   if(mult == 64){			//Button 8 toggles base 10 and 16
+      snooze = !(snooze);			//on the LED display
    }
    if(mult > 4) {			//I only want values from the
       mult = 0;				//first three buttons
@@ -412,7 +416,9 @@ void clock_time(){ //by default we use military time
       if(mode_sel == 2){
          segment_data[4] = dec_to_7seg[a_hour_count/10];
          segment_data[3] = dec_to_7seg[a_hour_count%10];
+         //if(sec_count%2 && alarm){segment_data[2] = 0b000;}		//Turn colon on
          if(sec_count%2){segment_data[2] = 0b100;}		//Turn colon on
+        // else if(alarm){segment_data[2] = 0b011;}		//Turn colon off
          else {segment_data[2] = 0b111;}		//Turn colon off
          segment_data[1] = dec_to_7seg[a_min_count/10];
          segment_data[0] = dec_to_7seg[a_min_count%10];
@@ -420,7 +426,9 @@ void clock_time(){ //by default we use military time
       else{
          segment_data[4] = dec_to_7seg[hour_count/10];
          segment_data[3] = dec_to_7seg[hour_count%10];
+         //if(sec_count%2 && alarm){segment_data[2] = 0b000;}		//Turn colon on
          if(sec_count%2){segment_data[2] = 0b100;}		//Turn colon on
+         //else if(alarm){segment_data[2] = 0b011;}		//Turn colon off
          else {segment_data[2] = 0b111;}		//Turn colon off
          segment_data[1] = dec_to_7seg[min_count/10];
          segment_data[0] = dec_to_7seg[min_count%10];
@@ -509,17 +517,32 @@ void fetch_adc(){
    uint16_t adc_result;
    uint16_t step;   
    uint16_t step2;   
-   uint16_t step3;   
 
    ADCSRA |= (1<<ADSC); //poke ADSC and start conversion
    while(bit_is_clear(ADCSRA, ADIF)){} //spin while interrupt flag not set
    ACSR |= (1<<ACI); //its done, clear flag by writing a one 
    adc_result = ADC;                      //read the ADC output as 16 bits
 
-   step = adc_result/205;
-   step2 = step/(0.022);
-   step3 = 220 - step2;
-   OCR2 = step3;
+   step = adc_result/4;
+   step2 =  256 - step;
+   if(step2 > 235){
+      step2 = 235;
+   }
+   OCR2 = step2;
+}
+
+/**********************************************************************
+Function:
+Description:
+Parameters:
+**********************************************************************/
+void alarm_sound() {
+   if(alarm && ((hour_count == a_hour_count) && (min_count == a_min_count))){
+      OCR3A = 158;
+   }
+   else {
+      OCR3A = 0;
+   }
 }
 
 /**********************************************************************
@@ -541,6 +564,7 @@ int main() {
    lcd_init();
    sei();				//Enable interrupts
    while(1){
+      alarm_sound();
       fetch_adc();	//put this into an ISR
       clock_time();
       change_alarm_state();
@@ -551,7 +575,7 @@ int main() {
 	 PORTA = segment_data[j];	//Writes the segment data to PORTA aka the segments
          PORTB = j << 4;		//J is bound 0-4 and that value is shifted left 4 so that 
 				//the digit to be displayed is in pin 4, 5, and 6 
-         _delay_us(100);		//delay so that the display does not flicker
+         _delay_us(200);		//delay so that the display does not flicker
          PORTA = 0xFF;
       }
 	PORTB = 0x00;;
