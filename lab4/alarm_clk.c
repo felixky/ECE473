@@ -1,10 +1,10 @@
 /**********************************************************************
 Author: Kyle Felix
-Date: October 30th, 2019
+Date: November 12, 2019
 Class: ECE 473 Microcontrollers
 Descriptiion: In Lab 4, I will be implementing an alarm clock on the 
 	ATmega 128 with the use of an LCD, LED display, push button
-	board, encoder, and bargraph. TNCT0 and 1 will be used through
+	board, encoder, and bargraph. TNCT0-3 will be used through
 	this project.
 **********************************************************************/
 
@@ -20,7 +20,10 @@ Descriptiion: In Lab 4, I will be implementing an alarm clock on the
 -  PORTE bit 6 goes to SHIFT_LD_N on the encoder
 -  PORTD bit 1 goes to CLK_INH on the encoder
 -  PORTD bit 0 goes to S_IN on te encoder
--  PORTC bit 6 goes to OE_N on the bargraph  
+-  PORTC bit 6 goes to OE_N on the bargraph 
+-  PORTF bit 7 is used for the ADC input
+-  PORTD bit 2 is used for the alarm frequency
+-  PORTE bit 3 is used as the volume control 
 **********************************************************************/
 //#define F_CPU 16000000 // cpu speed in hertz 
 #define TRUE 1
@@ -31,6 +34,7 @@ Descriptiion: In Lab 4, I will be implementing an alarm clock on the
 #include <stdlib.h>
 #include "hd44780.h"
 
+volatile uint8_t volume = 0x95;
 volatile uint8_t sec_count = 0;
 volatile int8_t min_count = 0;
 volatile int8_t hour_count = 0;
@@ -64,9 +68,10 @@ void spi_init(){
 }
 
 /**********************************************************************
-Function:
-Description:
-Parameters:
+Function: tcnt0_init
+Description: Timer counter 0 is initialized in normal mode with no prescale
+	and will be used as a seconds counter for the clock
+Parameters: NA
 **********************************************************************/
 void tcnt0_init(){
    ASSR |= (1<<AS0);
@@ -75,30 +80,35 @@ void tcnt0_init(){
 }
 
 /**********************************************************************
-Function:
-Description:
-Parameters:
+Function: tcnt1_init
+Description: Timer counter 1 is initialized in CTC mode, 64 bit prescaler
+	so that it can be used to generate an alarm frequency
+Parameters: NA
 **********************************************************************/
 void tcnt1_init(){
    TCCR1B |= (1<<CS11) | (1<<CS10) | (1<<WGM12);		//CTC mode, 64bit prescaler
    TCCR1C = 0x00;
-   TIMSK  |= (1<<OCIE1A);// | (1<<TOIE1); 
-   OCR1A = 0x0040;
+   TIMSK  |= (1<<OCIE1A);	//enable flag for interrupt 
+   OCR1A = 0x0040;		//compare match at 64
 }
 
 /**********************************************************************
-Function:
-Description:
-Parameters:
+Function: tcnt2_init
+Description: This timer is used to dim the led display. It is in 
+	normal mode with a 64 bit prescaler. OCRA2 is adjusted to change
+	the pwn produced.
+Parameters: NA
 **********************************************************************/
 void tcnt2_init(){
-   TCCR2 |= (1<<WGM21) | (1<<WGM20)| (1<<CS20) | (1<<COM21);			//normal mode, no prescale
+   TCCR2 |= (1<<WGM21) | (1<<WGM20)| (1<<CS20) | (1<<COM21);			
+	//normal mode, 64-bit prescale
 }
 
 /**********************************************************************
-Function:
-Description:
-Parameters:
+Function: tcnt3_init
+Description: This timer is used as a volume control for the audio amp.
+	I adjust the value of OCR3A to change the pwm.
+Parameters: NA
 **********************************************************************/
 void tcnt3_init(){
    TCCR3A |= (1<<COM3A1) | (1<<WGM31);	 //Clear on OCR3A match
@@ -106,7 +116,7 @@ void tcnt3_init(){
    TCCR3C = 0x00;
    ICR3 = 0x9F;				//Setting the TOP value
    TCNT3 = 0x0000; 			//Initialize TNCT1 to 0
-   OCR3A = 0x9F;			//Volume Control 0x9F=Max 0x00=Min
+   OCR3A = 0x95;			//Volume Control 0x9F=Max 0x00=Min
   
 }
 
@@ -198,8 +208,8 @@ void bars() {
    if(mult == 128){			//Button 8 toggles base 10 and 16
       alarm = !(alarm);			//on the LED display
    }
-   if(mult == 64){		//Button 8 toggles base 10 and 16
-      snooze = !(snooze);			//on the LED display
+   if(mult == 64){		//Button 7 toggles snooze
+      snooze = !(snooze);		//10 second snooze functionality
       a_sec_count = sec_count + 10;
       if(a_sec_count > 60){
          a_sec_count = a_sec_count % 60;
@@ -215,9 +225,6 @@ void bars() {
    }
    if(mult > 4) {			//I only want values from the
       mult = 0;				//first three buttons
-   }
-   if(mult == 4){
-      snooze = 1;
    }
    //This switch statement is used to enable a 'toggle' functionality
    //so that modes can be selected an deselected
@@ -284,6 +291,49 @@ int8_t read_encoder() {
    ec_b = encoder_value & 0x0C;  //Only grabs these bits 0000_1100 
    ec_b = (ec_b >> 2);
 
+//mode_sel == 0 means that no mode has been selected and the speaker volume can be adjusted
+   if(mode_sel == 0){
+      if(ec_a != EC_a_prev){ //Compares curr encoder value to ast value 
+         if(!(EC_a_prev) && (ec_a == 0x01)){//Determines CW rotation
+            volume += 10;	//increment volume
+	    if(volume >= 0x9F){
+		OCR3A = volume;	//maximum volume
+	    }
+         }
+         else if(!(EC_a_prev) && (ec_a == 0x02)){//Determines CCW rotation
+	    volume -= 10;	//decrement volume 
+	    if(volume <= 0x02){
+		OCR3A = volume;	//minimum volume
+	    }
+         }
+         else	//If not one of the state changes above, do nothing
+	 value = 0;
+      }
+/*      else {	//This is for encoder B
+         if(!(EC_b_prev) && (ec_b == 0x01)){//CW Rotation
+            min_count = min_count + 1;//value = value;
+	    if(min_count == 60){
+	       min_count = 0; 
+	       hour_count++;
+	       if(hour_count > 23)
+	          hour_count = 0;
+	    }
+         }
+         else if(!(EC_b_prev) && (ec_b == 0x02)){//CCW Rotation
+	    min_count = min_count - 1; //value = -(value);
+	    if(min_count < 0){
+	       min_count = 59;
+	       hour_count--;
+	       if(hour_count < 0){
+	          hour_count = 23;
+	       }
+	    }
+         }
+         else
+	    value = 0;
+      }*/
+   }
+
 //mode_sel == 1 means that the user has selected the "time change" mode
    if(mode_sel == 1){
       if(ec_a != EC_a_prev){ //Compares curr encoder value to ast value 
@@ -324,7 +374,7 @@ int8_t read_encoder() {
 	    value = 0;
       }
    }
-//mode_sel == 1 means that the user has selected the "time change" mode
+//mode_sel == 2 means that the user has selected the "alarm time change" mode
    if(mode_sel == 2){
       if(ec_a != EC_a_prev){ //Compares curr encoder value to ast value 
          if(!(EC_a_prev) && (ec_a == 0x01)){//Determines CW rotation
@@ -379,25 +429,28 @@ Description: Timer 0 overflow compare match interrupt. I call bars to
 	from 0-1023. 1023+1=1 and 0-any number > 0 = 1023.
 Parameters: NA
 **********************************************************************/
-ISR(TIMER0_OVF_vect) {
+ISR(TIMER0_OVF_vect) { 
    static uint8_t count_7_8125ms = 0;
 
    count_7_8125ms++;
    if((count_7_8125ms % 128) == 0) { //interrupts every 1 second
       sec_count++;
    }
-   bars();  
-   read_encoder();      
+//   bars();  
+//   read_encoder();      
 
 }
 
 /**********************************************************************
-Function:
-Description:
-Parameters:
+Function: clock_time
+Description: This function is used to change the time of the clock.The
+	seconds count is incremented and once it reaches 60 mins are 
+	incremented and so on. Depending on the mode that the user 
+	selected alarm time or normal time is displayed.
+Parameters: NA
 **********************************************************************/
 void clock_time(){ //by default we use military time
-   
+//This block is used to increment the time based on an increasing seconds count   
    if(sec_count == 60){
       min_count++;
       sec_count = 0;
@@ -411,7 +464,7 @@ void clock_time(){ //by default we use military time
    }//secs
 
 //This is where the digits are written to the data array
-      if(mode_sel == 2){
+      if(mode_sel == 2){	//display alarm time
          segment_data[4] = dec_to_7seg[a_hour_count/10];
          segment_data[3] = dec_to_7seg[a_hour_count%10];
          if(sec_count%2){segment_data[2] = 0b100;}		//Turn colon on
@@ -419,7 +472,7 @@ void clock_time(){ //by default we use military time
          segment_data[1] = dec_to_7seg[a_min_count/10];
          segment_data[0] = dec_to_7seg[a_min_count%10];
       }
-      else{
+      else{			//display military time
          segment_data[4] = dec_to_7seg[hour_count/10];
          segment_data[3] = dec_to_7seg[hour_count%10];
          if(sec_count%2){segment_data[2] = 0b100;}		//Turn colon on
@@ -430,9 +483,9 @@ void clock_time(){ //by default we use military time
 }
 
 /**********************************************************************
-Function:
-Description:
-Parameters:
+Function: port_init
+Description: General port initialization and setting pull up resistors
+Parameters: NA
 **********************************************************************/
 void port_init(){
    DDRC |= 0xFF; 
@@ -445,41 +498,44 @@ void port_init(){
 }
 
 /**********************************************************************
-Function:
-Description:
-Parameters:
+Function: change_alarm_state
+Description: This function is used to display when the alarm is armed
+	and what time it is set for on the LCD.
+Parameters: NA
 **********************************************************************/
 void change_alarm_state(){
    static uint8_t curr = 0;
-   if(alarm && (curr == 0)){
-      if((a_hour_count > 9) && (a_min_count > 9)){
+   if(alarm && (curr == 0)){	//First time through function with alarm on
+      if((a_hour_count > 9) && (a_min_count > 9)){	//hours and min counts > 9
          string2lcd("ALARM at ");
          lcd_int16(a_hour_count, 2, 0, 0, 0);
          string2lcd(":");
          lcd_int16(a_min_count, 2, 0, 0, 0);
       }
-      else if(a_hour_count > 9){
+      else if(a_hour_count > 9){ //hour>9 and min<10
          string2lcd("ALARM at ");
          lcd_int16(a_hour_count, 2, 0, 0, 0);
          string2lcd(":");
          string2lcd("0");
          lcd_int16(a_min_count, 1, 0, 0, 0);
       }
-      else if(a_min_count > 9){
+      else if(a_min_count > 9){ //min>9 and hour<10
          string2lcd("ALARM at");
          lcd_int16(a_hour_count, 2, 0, 0, 0);
          string2lcd(":");
          lcd_int16(a_min_count, 2, 0, 0, 0);
       }
-      else {
+      else { //hour and min < 10
          string2lcd("ALARM at");
          lcd_int16(a_hour_count, 2, 0, 0, 0);
          string2lcd(":");
          string2lcd("0");
          lcd_int16(a_min_count, 1, 0, 0, 0);
       }
-      curr = 1;
+      curr = 1;	//indicated that alarm has been written to the display next time
+	//through the function
    }
+	//clears display when the alarm is turned off
    else if((!alarm) && (curr == 1)){
       curr = 0;
       clear_display();
@@ -488,9 +544,9 @@ void change_alarm_state(){
 }
 
 /**********************************************************************
-Function:
-Description:
-Parameters:
+Function: adc_init
+Description: Basic adc initialization used for single shot adc readings
+Parameters: NA
 **********************************************************************/
 void adc_init(){
 //Initalize ADC and its ports
@@ -503,9 +559,10 @@ void adc_init(){
 }
 
 /**********************************************************************
-Function:
-Description:
-Parameters:
+Function: fetch_adc
+Description: This function reads the adc and adjust the value to change
+	the pwm on tcnt2.
+Parameters:NA
 **********************************************************************/
 void fetch_adc(){
    uint16_t adc_result;
@@ -517,31 +574,37 @@ void fetch_adc(){
    ACSR |= (1<<ACI); //its done, clear flag by writing a one 
    adc_result = ADC;                      //read the ADC output as 16 bits
 
-   step = adc_result/4;
-   step2 =  256 - step;
-   if(step2 > 235){
+   step = adc_result/4;//scales the adc result from 0-255
+   step2 =  256 - step;//I need the complement to the adc result
+   if(step2 > 235){	//this is a minimum brightness level
       step2 = 235;
    }
-   OCR2 = step2;
+   OCR2 = step2;	//Write brightness level to tnct2 compare match register
+	//to chaange the duty cycle
 }
 
 /**********************************************************************
-Function:
-Description:
-Parameters:
+Function: TIMER!_COMPA_vect
+Description: This ISR creates the alarm frequency on PORTD but 3 the is used
+	for the alarm tone.
+Parameters: NA
 **********************************************************************/
 ISR(TIMER1_COMPA_vect){
    //static uint8_t seconds = 0;
-if(!snooze){
+   bars();  //displays the mode on the bargraph
+   read_encoder();     //reads the encoder values
+if(!snooze){ //alarm has not been snoozed
+//checks to see alarm is on and the alarm time matches clock time
    if(alarm && ((hour_count == a_hour_count) && (min_count == a_min_count))){
-      PORTD = PIND ^ 0b00000100;
+      PORTD = PIND ^ 0b00000100;//toggles PD3 to create frequency
    }
 }
 }
 /**********************************************************************
-Function:
-Description:
-Parameters:
+Function: snoozin
+Description: This function disables the snooze variable once the alarm
+	seconds equals the normal seconds. 
+Parameters: NA
 **********************************************************************/
 void snoozin() {
    if(snooze){
@@ -560,7 +623,7 @@ Description: Program interrupts are enabled, initial port declarations,
 Parameters: NA
 **********************************************************************/
 int main() {
-   spi_init();				//Initalize SPI
+   spi_init();				//Initalize spi, counters,adc, and lcd
    tcnt0_init();
    tcnt1_init();
    tcnt2_init();
@@ -572,7 +635,7 @@ int main() {
    sei();				//Enable interrupts
    while(1){
       snoozin();
-      fetch_adc();	//put this into an ISR
+      fetch_adc();
       clock_time();
       change_alarm_state();
       for( int j = 0; j < 5; j++) {	//cycles through each of the five digits

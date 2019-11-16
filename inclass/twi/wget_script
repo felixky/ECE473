@@ -1,0 +1,6 @@
+#!/bin/bash
+wget http://www.ece.orst.edu/~traylor/ece473/inclass_exercises/uart/Makefile
+wget http://www.ece.orst.edu/~traylor/ece473/inclass_exercises/uart/hd44780.*  
+wget http://www.ece.orst.edu/~traylor/ece473/inclass_exercises/uart/uart_rxtx.c 
+wget http://www.ece.orst.edu/~traylor/ece473/inclass_exercises/uart/uart_functions.c
+wget http://www.ece.orst.edu/~traylor/ece473/inclass_exercises/uart/uart_functions.h
