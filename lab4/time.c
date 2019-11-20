@@ -1,4 +1,4 @@
-/***********************************************************************
+/**********************************************************************
 Author: Kyle Felix
 Date: November 12, 2019
 Class: ECE 473 Microcontrollers
@@ -34,7 +34,7 @@ Descriptiion: In Lab 4, I will be implementing an alarm clock on the
 #include <stdlib.h>
 #include "hd44780.h"
 
-volatile uint8_t volume = 0x9F;
+volatile uint8_t volume = 0x95;
 volatile uint8_t sec_count = 0;
 volatile int8_t min_count = 0;
 volatile int8_t hour_count = 0;
@@ -116,7 +116,7 @@ void tcnt3_init(){
    TCCR3C = 0x00;
    ICR3 = 0x9F;				//Setting the TOP value
    TCNT3 = 0x0000; 			//Initialize TNCT1 to 0
-   OCR3A = 0x9F;			//Volume Control 0x9F=Max 0x00=Min
+   OCR3A = 0x95;			//Volume Control 0x9F=Max 0x00=Min
   
 }
 
@@ -296,26 +296,18 @@ int8_t read_encoder() {
       if(ec_a != EC_a_prev){ //Compares curr encoder value to ast value 
          if(!(EC_a_prev) && (ec_a == 0x01)){//Determines CW rotation
             volume += 10;	//increment volume
-	    if(volume <= 0x9F){
+	    if(volume >= 0x9F){
 		OCR3A = volume;	//maximum volume
-	    }
-	    else {
-		volume = 0x9F;
-		OCR3A = 0x9F;
 	    }
          }
          else if(!(EC_a_prev) && (ec_a == 0x02)){//Determines CCW rotation
 	    volume -= 10;	//decrement volume 
-	    if(volume >= 0x00){
+	    if(volume <= 0x02){
 		OCR3A = volume;	//minimum volume
-	    }
-	    else {
-		volume = 0x00;
-		OCR3A = 0x00;
 	    }
          }
          else	//If not one of the state changes above, do nothing
-	 volume = volume;
+	 value = 0;
       }
 /*      else {	//This is for encoder B
          if(!(EC_b_prev) && (ec_b == 0x01)){//CW Rotation
@@ -444,8 +436,8 @@ ISR(TIMER0_OVF_vect) {
    if((count_7_8125ms % 128) == 0) { //interrupts every 1 second
       sec_count++;
    }
-   bars();  
-   read_encoder();      
+//   bars();  
+//   read_encoder();      
 
 }
 
@@ -583,11 +575,10 @@ void fetch_adc(){
    adc_result = ADC;                      //read the ADC output as 16 bits
 
    step = adc_result/4;//scales the adc result from 0-255
-   step2 =  255 - step;//I need the complement to the adc result
+   step2 =  256 - step;//I need the complement to the adc result
    if(step2 > 235){	//this is a minimum brightness level
       step2 = 235;
    }
-
    OCR2 = step2;	//Write brightness level to tnct2 compare match register
 	//to chaange the duty cycle
 }
@@ -600,8 +591,8 @@ Parameters: NA
 **********************************************************************/
 ISR(TIMER1_COMPA_vect){
    //static uint8_t seconds = 0;
-   //bars();  //displays the mode on the bargraph
-   //read_encoder();     //reads the encoder values
+   bars();  //displays the mode on the bargraph
+   read_encoder();     //reads the encoder values
 if(!snooze){ //alarm has not been snoozed
 //checks to see alarm is on and the alarm time matches clock time
    if(alarm && ((hour_count == a_hour_count) && (min_count == a_min_count))){
