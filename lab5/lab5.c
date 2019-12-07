@@ -36,7 +36,8 @@ Descriptiion: In Lab 4, I will be implementing an alarm clock on the
 #include "twi_master.h"
 #include "lm73_functions.h"
 
-
+char lcd_array[32] = "                                ";
+volatile uint16_t l_temp;
 char    lcd_string_array[16];  //holds a string to refresh the LCD
 extern uint8_t lm73_rd_buf[2];
 extern uint8_t lm73_wr_buf[2];
@@ -81,8 +82,9 @@ Parameters: NA
 **********************************************************************/
 void tcnt0_init(){
    ASSR |= (1<<AS0);
-   TIMSK |= (1<<TOIE0);			//enable interrupts
+   TIMSK |= (1<<OCIE0) | (1<<TOIE0);			//enable interrupts
    TCCR0 |= (1<<CS00);			//normal mode, no prescale
+   OCR0 = 0xFF;
 }
 
 /**********************************************************************
@@ -436,6 +438,29 @@ return value;
 }
 
 /**********************************************************************
+Function: get_local_temp()
+Description: 
+Parameters: NA
+**********************************************************************/
+void get_local_temp(){
+uint16_t lm73_temp;
+
+  //_delay_ms(65); //tenth second wait
+  clear_display();                  //wipe the display
+  twi_start_rd(LM73_ADDRESS, lm73_rd_buf, 2); //read temperature data from LM73 (2 bytes) 
+  _delay_ms(1);    //wait for it to finish
+  lm73_temp = lm73_rd_buf[0]; //save high temperature byte into lm73_temp
+  lm73_temp = lm73_temp << 8; //shift it into upper byte 
+  lm73_temp |= lm73_rd_buf[1]; //"OR" in the low temp byte to lm73_temp 
+  itoa(lm73_temp >> 7, lcd_string_array, 10); //convert to string in array with itoa() from avr-libc                           
+
+  lcd_array[16] = 'L';
+  lcd_array[17] = ':';  
+  lcd_array[18] = lcd_string_array[0];  
+  lcd_array[19] = lcd_string_array[1];  
+  lcd_array[20] = 'C';  
+}
+/**********************************************************************
 Function: ISR(TIMER0_OVE_vect
 Description: Timer 0 overflow compare match interrupt. I call bars to 
 	update the mode and bargraph. Then I change the sum based on	
@@ -452,6 +477,16 @@ ISR(TIMER0_OVF_vect) {
    }
    bars();  
    read_encoder();      
+
+}
+
+ISR(TIMER0_COMP_vect) {
+   static uint8_t count7_8125ms = 0;
+
+   count7_8125ms++;
+   if((count7_8125ms % 128) == 0) { //interrupts every 1 second
+      get_local_temp();
+   }
 
 }
 
@@ -519,7 +554,7 @@ Parameters: NA
 **********************************************************************/
 void change_alarm_state(){
    static uint8_t curr = 0;
-   if(alarm && (curr == 0)){	//First time through function with alarm on
+/*   if(alarm && (curr == 0)){	//First time through function with alarm on
       if((a_hour_count > 9) && (a_min_count > 9)){	//hours and min counts > 9
          string2lcd("ALARM at ");
          lcd_int16(a_hour_count, 2, 0, 0, 0);
@@ -549,10 +584,24 @@ void change_alarm_state(){
       curr = 1;	//indicated that alarm has been written to the display next time
 	//through the function
    }
-	//clears display when the alarm is turned off
+	//clears display when the alarm is turned off*/
+   if(alarm && (curr ==0)){
+      //string2lcd("Alarm");
+      lcd_array[0] = 'A';
+      lcd_array[1] = 'l';
+      lcd_array[2] = 'a';
+      lcd_array[3] = 'r';
+      lcd_array[4] = 'm';
+      curr = 1;
+   }
    else if((!alarm) && (curr == 1)){
       curr = 0;
-      clear_display();
+      lcd_array[0] = ' ';
+      lcd_array[1] = ' ';
+      lcd_array[2] = ' ';
+      lcd_array[3] = ' ';
+      lcd_array[4] = ' ';
+      //clear_display();
    }
    else{}
 }
@@ -635,27 +684,14 @@ Function: get_local_temp()
 Description: 
 Parameters: NA
 **********************************************************************/
-void get_local_temp(){
-uint16_t lm73_temp;
+void local_temp_init(){
 
 lm73_wr_buf[0] = 0x00; //load lm73_wr_buf[0] with temperature pointer address
 twi_start_wr(LM73_ADDRESS, lm73_rd_buf, 1); //start the TWI write process
 _delay_ms(2);    //wait for the xfer to finish
 
-clear_display(); //clean up the display
-
-while(1){          //main while loop
-  _delay_ms(100); //tenth second wait
-  clear_display();                  //wipe the display
-  twi_start_rd(LM73_ADDRESS, lm73_rd_buf, 2); //read temperature data from LM73 (2 bytes) 
-  _delay_ms(2);    //wait for it to finish
-  lm73_temp = lm73_rd_buf[0]; //save high temperature byte into lm73_temp
-  lm73_temp = lm73_temp << 8; //shift it into upper byte 
-  lm73_temp |= lm73_rd_buf[1]; //"OR" in the low temp byte to lm73_temp 
-  itoa(lm73_temp >> 7, lcd_string_array, 10); //convert to string in array with itoa() from avr-libc                           
-  string2lcd(lcd_string_array); //send the string to LCD (lcd_functions)
-  } //while
 }
+
 
 /**********************************************************************
 Function: ()
@@ -679,11 +715,12 @@ int main() {
    port_init();
    adc_init();
    init_twi();
+   local_temp_init();   
 
    lcd_init();
    sei();				//Enable interrupts
    while(1){
-      //get_local_temp();
+      refresh_lcd(lcd_array);
       snoozin();
       fetch_adc();
       clock_time();
