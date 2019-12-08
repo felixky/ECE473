@@ -25,7 +25,6 @@ Descriptiion: In Lab 4, I will be implementing an alarm clock on the
 -  PORTD bit 2 is used for the alarm frequency
 -  PORTE bit 3 is used as the volume control 
 **********************************************************************/
-//#define F_CPU 16000000 // cpu speed in hertz 
 #define TRUE 1
 #define FALSE 0
 #include <avr/io.h>
@@ -44,7 +43,7 @@ char              lcd_str_array[16];  //holds string to send to lcd
 uint8_t           send_seq=0;         //transmit sequence number
 char              lcd_string[3];      //holds value of sequence number
 
-char lcd_array[32];
+char lcd_array[16] = {"L:  C R:  C     "};
 volatile uint16_t l_temp;
 char    lcd_string_array[16];  //holds a string to refresh the LCD
 extern uint8_t lm73_rd_buf[2];
@@ -462,10 +461,14 @@ uint16_t lm73_temp;
   itoa(lm73_temp >> 7, lcd_string_array, 10); //convert to string in array with itoa() from avr-libc                           
 
   line2_col1();
-  string2lcd("L:");
-  string2lcd(lcd_string_array);
+  lcd_array[2] = lcd_string_array[0];
+  lcd_array[3] = lcd_string_array[1];
+  string2lcd(lcd_array);
+//  line2_col1();
+//  string2lcd("L:");
+//  string2lcd(lcd_string_array);
   //lcd_int16(lm73_temp, 2, 0, 0, 0);
-  char2lcd('C');
+//  char2lcd('C');
 /*
   lcd_array[16] = 'L';
   lcd_array[17] = ':';  
@@ -685,7 +688,7 @@ if(!snooze){ //alarm has not been snoozed
 
 ISR(TIMER1_OVF_vect){
 
-   lcd_array[25] = 'G';
+   //lcd_array[25] = 'G';
 
 }
 
@@ -725,6 +728,8 @@ Parameters: NA
 **********************************************************************/
 ISR(USART0_RX_vect){
 static  uint8_t  i;
+line1_col1();
+string2lcd("Here");
   rx_char = UDR0;              //get character
   lcd_str_array[i++]=rx_char;  //store in array 
  //if entire string has arrived, set flag, reset index
@@ -753,7 +758,7 @@ int main() {
    port_init();
    init_twi();
    local_temp_init();   
-   strncpy(lcd_array, "                                    ",32);
+//   strncpy(lcd_array, "                                    ",32);
 
    uart_init();
    lcd_init();
@@ -762,8 +767,8 @@ int main() {
 
 //***************  start rcv portion ***************
     if(rcv_rdy==1){
-        lcd_array[25] = lcd_str_array[0];
-        lcd_array[26] = lcd_str_array[1];
+	line1_col1();
+    	string2lcd(lcd_str_array);    
 	rcv_rdy=0;
     }//if 
 //**************  end rcv portion ***************

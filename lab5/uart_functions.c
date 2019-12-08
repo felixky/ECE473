@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <avr/pgmspace.h>
 
-#define USART_BAUDRATE 57600  
+#define USART_BAUDRATE 9600  
 //Compute baudvalue at compile time from USART_BAUDRATE and F_CPU
 #define BAUDVALUE  ((F_CPU/(USART_BAUDRATE * 16UL)) - 1 )
 
@@ -62,8 +62,8 @@ void uart_puts_p(const char *str) {
 
 void uart_init(){
 //rx and tx enable, receive interrupt enabled, 8 bit characters
-//  UCSR0B |= (1<<RXEN0) | (1<<TXEN0) | (1<<RXCIE0);
-  UCSR0B |= (1<<RXEN0) | (1<<TXEN0);  //INTERRUPS DISABLED!!!
+  UCSR0B |= (1<<RXEN0) | (1<<TXEN0) | (1<<RXCIE0);
+//  UCSR0B |= (1<<RXEN0) | (1<<TXEN0);  //INTERRUPS DISABLED!!!
 
 //  UCSR0B |= (1<<RXEN0) | (1<<TXEN0) ;
 //async operation, no parity,  one stop bit, 8-bit characters
