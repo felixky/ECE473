@@ -27,6 +27,6 @@ uint8_t lm73_temp_convert(char temp_digits[], uint16_t lm73_temp, uint8_t f){
 
    }
 //Yeah, this is for you to do! ;^)
-
+return 0b11111111;
 }//lm73_temp_convert
 //******************************************************************************

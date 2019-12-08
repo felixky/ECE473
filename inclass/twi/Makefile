@@ -2,16 +2,16 @@ SHELL           = /bin/bash
 
 PRG             = uart_rxtx
 
-OBJS            = uart_rxtx.o uart_functions.o hd44780.o
+OBJS            = uart_rxtx.o uart_functions.o twi_master.o# hd44780.o
 
-SRCS            = uart_rxtx.c uart_functions.c  hd44780.c
+SRCS            = uart_rxtx.c uart_functions.c twi_master.c# hd44780.c
 
-MCU_TARGET     = atmega128
+MCU_TARGET     = atmega168
 #MCU_TARGET     = atmega48
 
 F_CPU          = 16000000UL
 
-PROGRAMMER_TARGET     = m128
+PROGRAMMER_TARGET     = m168p
 #PROGRAMMER_TARGET     = m48
 
 #agressive optimization

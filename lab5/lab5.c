@@ -32,11 +32,19 @@ Descriptiion: In Lab 4, I will be implementing an alarm clock on the
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include <stdlib.h>
+#include <string.h>
 #include "hd44780.h"
 #include "twi_master.h"
+#include "uart_functions.h"
 #include "lm73_functions.h"
 
-char lcd_array[32] = "                                ";
+volatile uint8_t  rcv_rdy;
+char              rx_char; 
+char              lcd_str_array[16];  //holds string to send to lcd
+uint8_t           send_seq=0;         //transmit sequence number
+char              lcd_string[3];      //holds value of sequence number
+
+char lcd_array[32];
 volatile uint16_t l_temp;
 char    lcd_string_array[16];  //holds a string to refresh the LCD
 extern uint8_t lm73_rd_buf[2];
@@ -96,7 +104,7 @@ Parameters: NA
 void tcnt1_init(){
    TCCR1B |= (1<<CS11) | (1<<CS10) | (1<<WGM12);		//CTC mode, 64bit prescaler
    TCCR1C = 0x00;
-   TIMSK  |= (1<<OCIE1A);	//enable flag for interrupt 
+   TIMSK  |= (1<<OCIE1A) | (1<<TOIE1);	//enable flag for interrupt 
    OCR1A = 0x0040;		//compare match at 64
 }
 
@@ -446,9 +454,8 @@ void get_local_temp(){
 uint16_t lm73_temp;
 
   //_delay_ms(65); //tenth second wait
-  clear_display();                  //wipe the display
   twi_start_rd(LM73_ADDRESS, lm73_rd_buf, 2); //read temperature data from LM73 (2 bytes) 
-  _delay_ms(1);    //wait for it to finish
+  _delay_ms(2);    //wait for it to finish
   lm73_temp = lm73_rd_buf[0]; //save high temperature byte into lm73_temp
   lm73_temp = lm73_temp << 8; //shift it into upper byte 
   lm73_temp |= lm73_rd_buf[1]; //"OR" in the low temp byte to lm73_temp 
@@ -541,6 +548,7 @@ void port_init(){
    DDRB |= 0xF0;				//PB4-6 is SEL0-2, PB7 is PWM
    DDRE |= 0x4F;				//PE6 is SHIFT_LD_N
    DDRD |= 0xFF;				//PE1 is CLK_INH and PE2 is SRCLK
+   DDRF |= 0x08;
    PORTC |= 0x01;
    PORTD |= 0xFF;
    PORTE |= 0xFF;
@@ -664,6 +672,13 @@ if(!snooze){ //alarm has not been snoozed
    }
 }
 }
+
+ISR(TIMER1_OVF_vect){
+
+   lcd_array[25] = 'G';
+
+}
+
 /**********************************************************************
 Function: snoozin
 Description: This function disables the snooze variable once the alarm
@@ -688,7 +703,7 @@ void local_temp_init(){
 
 lm73_wr_buf[0] = 0x00; //load lm73_wr_buf[0] with temperature pointer address
 twi_start_wr(LM73_ADDRESS, lm73_rd_buf, 1); //start the TWI write process
-_delay_ms(2);    //wait for the xfer to finish
+_delay_ms(100);    //wait for the xfer to finish
 
 }
 
@@ -698,7 +713,19 @@ Function: ()
 Description: 
 Parameters: NA
 **********************************************************************/
-
+ISR(USART0_RX_vect){
+static  uint8_t  i;
+  rx_char = UDR0;              //get character
+  lcd_str_array[i++]=rx_char;  //store in array 
+ //if entire string has arrived, set flag, reset index
+  if(rx_char == '\0'){
+    rcv_rdy=1; 
+    lcd_str_array[--i]  = (' ');     //clear the count field
+    lcd_str_array[i+1]  = (' ');
+    lcd_str_array[i+2]  = (' ');
+    i=0;  
+  }
+}
 /**********************************************************************
 Function: main()
 Description: Program interrupts are enabled, initial port declarations,
@@ -712,15 +739,33 @@ int main() {
    tcnt1_init();
    tcnt2_init();
    tcnt3_init();
-   port_init();
    adc_init();
+   port_init();
    init_twi();
    local_temp_init();   
+   strncpy(lcd_array, "                                    ",32);
 
+   uart_init();
    lcd_init();
    sei();				//Enable interrupts
    while(1){
-      refresh_lcd(lcd_array);
+//***************  start rcv portion ***************
+    if(rcv_rdy==1){
+        string2lcd(lcd_str_array);
+        rcv_rdy=0;
+    }//if 
+//**************  end rcv portion ***************
+
+//**************  start tx portion ***************
+    uart_puts("Too");
+    itoa(send_seq,lcd_string,10);
+    uart_puts(lcd_string);
+    uart_putc('\0');
+    for(int i=0;i<=9;i++){_delay_ms(1);}
+    send_seq++;
+    send_seq=(send_seq%20);
+//**************  end tx portion ***************
+//      refresh_lcd(lcd_array);
       snoozin();
       fetch_adc();
       clock_time();
