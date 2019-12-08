@@ -461,11 +461,17 @@ uint16_t lm73_temp;
   lm73_temp |= lm73_rd_buf[1]; //"OR" in the low temp byte to lm73_temp 
   itoa(lm73_temp >> 7, lcd_string_array, 10); //convert to string in array with itoa() from avr-libc                           
 
+  line2_col1();
+  string2lcd("L:");
+  string2lcd(lcd_string_array);
+  //lcd_int16(lm73_temp, 2, 0, 0, 0);
+  char2lcd('C');
+/*
   lcd_array[16] = 'L';
   lcd_array[17] = ':';  
   lcd_array[18] = lcd_string_array[0];  
   lcd_array[19] = lcd_string_array[1];  
-  lcd_array[20] = 'C';  
+  lcd_array[20] = 'C';  */
 }
 /**********************************************************************
 Function: ISR(TIMER0_OVE_vect
@@ -493,6 +499,7 @@ ISR(TIMER0_COMP_vect) {
    count7_8125ms++;
    if((count7_8125ms % 128) == 0) { //interrupts every 1 second
       get_local_temp();
+      uart_puts("A");
    }
 
 }
@@ -594,21 +601,24 @@ void change_alarm_state(){
    }
 	//clears display when the alarm is turned off*/
    if(alarm && (curr ==0)){
-      //string2lcd("Alarm");
-      lcd_array[0] = 'A';
-      lcd_array[1] = 'l';
-      lcd_array[2] = 'a';
-      lcd_array[3] = 'r';
-      lcd_array[4] = 'm';
+      line1_col1();
+      string2lcd("Alarm");
+      //lcd_array[0] = 'A';
+      //lcd_array[1] = 'l';
+      //lcd_array[2] = 'a';
+      //lcd_array[3] = 'r';
+      //lcd_array[4] = 'm';
       curr = 1;
    }
    else if((!alarm) && (curr == 1)){
       curr = 0;
-      lcd_array[0] = ' ';
-      lcd_array[1] = ' ';
-      lcd_array[2] = ' ';
-      lcd_array[3] = ' ';
-      lcd_array[4] = ' ';
+      line1_col1();
+      string2lcd("     ");
+      //lcd_array[0] = ' ';
+      //lcd_array[1] = ' ';
+      //lcd_array[2] = ' ';
+      //lcd_array[3] = ' ';
+      //lcd_array[4] = ' ';
       //clear_display();
    }
    else{}
@@ -749,22 +759,15 @@ int main() {
    lcd_init();
    sei();				//Enable interrupts
    while(1){
+
 //***************  start rcv portion ***************
     if(rcv_rdy==1){
-        string2lcd(lcd_str_array);
-        rcv_rdy=0;
+        lcd_array[25] = lcd_str_array[0];
+        lcd_array[26] = lcd_str_array[1];
+	rcv_rdy=0;
     }//if 
 //**************  end rcv portion ***************
-
-//**************  start tx portion ***************
-    uart_puts("Too");
-    itoa(send_seq,lcd_string,10);
-    uart_puts(lcd_string);
-    uart_putc('\0');
-    for(int i=0;i<=9;i++){_delay_ms(1);}
-    send_seq++;
-    send_seq=(send_seq%20);
-//**************  end tx portion ***************
+ 
 //      refresh_lcd(lcd_array);
       snoozin();
       fetch_adc();
