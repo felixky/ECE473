@@ -25,8 +25,8 @@ Descriptiion: In Lab 4, I will be implementing an alarm clock on the
 -  PORTD bit 2 is used for the alarm frequency
 -  PORTE bit 3 is used as the volume control 
 **********************************************************************/
-#define TRUE 1
-#define FALSE 0
+//#define TRUE 1
+//#define FALSE 0
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
@@ -34,6 +34,7 @@ Descriptiion: In Lab 4, I will be implementing an alarm clock on the
 #include <string.h>
 #include "hd44780.h"
 #include "twi_master.h"
+#include "si4734.h"
 #include "uart_functions.h"
 #include "lm73_functions.h"
 

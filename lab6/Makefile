@@ -1,6 +1,6 @@
-PRG            = lab5
-OBJ            = $(PRG).o hd44780.o twi_master.o lm73_functions.o uart_functions.o
-SRCS           = $(PRG).c hd44780.c twi_master.c lm73_functions.c uart_functions.c
+PRG            = lab6
+OBJ            = $(PRG).o hd44780.o twi_master.o lm73_functions.o uart_functions.o si4734.o
+SRCS           = $(PRG).c hd44780.c twi_master.c lm73_functions.c uart_functions.c si4734.c
 
 MCU_TARGET     = atmega128
 OPTIMIZE       = -O2    # options are 1, 2, 3, s
