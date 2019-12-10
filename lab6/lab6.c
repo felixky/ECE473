@@ -25,18 +25,33 @@ Descriptiion: In Lab 4, I will be implementing an alarm clock on the
 -  PORTD bit 2 is used for the alarm frequency
 -  PORTE bit 3 is used as the volume control 
 **********************************************************************/
-//#define TRUE 1
-//#define FALSE 0
+//Radio test code
+
 #include <avr/io.h>
-#include <avr/interrupt.h>
 #include <util/delay.h>
+#include <avr/interrupt.h>
+#include <math.h>
 #include <stdlib.h>
+#include "twi_master.h"
+#include "uart_functions.h"
+#include "si4734.h"
 #include <string.h>
 #include "hd44780.h"
-#include "twi_master.h"
-#include "si4734.h"
-#include "uart_functions.h"
 #include "lm73_functions.h"
+extern enum radio_band{FM, AM, SW};
+extern volatile uint8_t STC_interrupt;
+
+volatile enum radio_band current_radio_band = FM;
+
+uint16_t eeprom_fm_freq;
+uint16_t eeprom_am_freq;
+uint16_t eeprom_sw_freq;
+uint8_t  eeprom_volume;
+
+volatile uint16_t current_fm_freq = 9990;
+volatile uint16_t current_am_freq;
+volatile uint16_t current_sw_freq;
+uint8_t  current_volume;
 
 volatile uint8_t  rcv_rdy;
 char              rx_char; 
@@ -60,7 +75,7 @@ volatile uint8_t am_pm = 0;		//0=am 1=pm
 volatile uint8_t mil = 1;		//military time is on by default
 volatile uint8_t alarm = 0;
 volatile uint8_t snooze = 0;
-
+volatile uint8_t freq_change = 0;
 volatile uint8_t hex = 0;
 volatile uint16_t mult = 0;
 volatile int16_t sum = 0;
@@ -245,14 +260,14 @@ void bars() {
    //This switch statement is used to enable a 'toggle' functionality
    //so that modes can be selected an deselected
    switch(mult) {
-      case 1:
+      case 1: // Time change mode
 	 if((mode_sel ^ mult) == 0){	//XOR to see if they are the same
 	    mode_sel = 0;
 	 }
 	 else
 	    mode_sel = 1;		//If not, then change mode
          break;
-      case 2:
+      case 2: //Alarm time change mode
 	 if((mode_sel ^ mult) == 0 ){//if((mode_sel ^ mult) && (mode_sel == 4)){//if cur &prev are diff
 	    mode_sel = 0;//and prev isn't = 1 then two modes are selected
 	 }
@@ -260,14 +275,14 @@ void bars() {
 	    mode_sel = 2;		//If not, then change mode
          
          break;
-/*      case 4:
-	 if((mode_sel ^ mult) && (mode_sel == 2)){//if cur &prev are diff
+      case 4: //Frequency Change mode
+	 if((mode_sel ^ mult) == 0){//if cur &prev are diff
 	    mode_sel = 0;//and prev isn't = 1 then two modes are selected
 	 }
 	 else
 	    mode_sel = 4;		//If not, then change mode
-         break;*/
-      default:
+         break;
+      default: //Stay in previous mode
 	 mode_sel = mode_sel;		//no/invalid button press
    }   
    mult = 0;				//clear mult for next pass
@@ -438,6 +453,30 @@ int8_t read_encoder() {
 	    value = 0;
       }
    }
+   if(mode_sel == 4){
+      if(ec_a != EC_a_prev){ //Compares curr encoder value to ast value 
+         if(!(EC_a_prev) && (ec_a == 0x01)){//Determines CW rotation
+            freq_change += 20;	//increment frequency by .02kHz
+	    if(freq_change <= 10790 ){
+		current_fm_freq = 10790;	//maximum frequency
+	    }
+	    else {
+		current_fm_freq = freq_change;
+	    }
+         }
+         else if(!(EC_a_prev) && (ec_a == 0x02)){//Determines CCW rotation
+	    freq_change -= 20;	//decrement frequency 
+	    if(freq_change >= 8810){
+		current_fm_freq = 8810;	//minimum frequency
+	    }
+	    else {
+		current_fm_freq = freq_change;
+	    }
+         }
+         else	//If not one of the state changes above, do nothing
+	 volume = volume;
+      }
+   }
 //Saves previous values into volatile variables
 EC_a_prev = ec_a;
 EC_b_prev = ec_b;
@@ -492,10 +531,8 @@ ISR(TIMER0_COMP_vect) {
    count7_8125ms++;
    if((count7_8125ms % 128) == 0) { //interrupts every 1 second
       get_local_temp();
-/*      uart_puts("A");
-      itoa(send_seq,lcd_string,10);
-      uart_puts(lcd_string);
-      uart_putc('\0'); */
+      uart_puts("A");
+      uart_putc('\0');
    }
 
 }
@@ -530,6 +567,13 @@ void clock_time(){ //by default we use military time
          else {segment_data[2] = 0b111;}		//Turn colon off
          segment_data[1] = dec_to_7seg[a_min_count/10];
          segment_data[0] = dec_to_7seg[a_min_count%10];
+      }
+      else if(mode_sel == 4){	//display frequency
+         segment_data[4] = dec_to_7seg[1];
+         segment_data[3] = dec_to_7seg[1];
+         segment_data[2] = 0b111;
+         segment_data[1] = dec_to_7seg[1];
+         segment_data[0] = dec_to_7seg[1];
       }
       else{			//display military time
          segment_data[4] = dec_to_7seg[hour_count/10];
@@ -631,9 +675,6 @@ Description: This ISR creates the alarm frequency on PORTD but 3 the is used
 Parameters: NA
 **********************************************************************/
 ISR(TIMER1_COMPA_vect){
-   //static uint8_t seconds = 0;
-   //bars();  //displays the mode on the bargraph
-   //read_encoder();     //reads the encoder values
 if(!snooze){ //alarm has not been snoozed
 //checks to see alarm is on and the alarm time matches clock time
    if(alarm && ((hour_count == a_hour_count) && (min_count == a_min_count))){
@@ -714,19 +755,12 @@ int main() {
    while(1){
 
 //***************  start rcv portion ***************
-    if(rcv_rdy==1){
-	//line1_col1();
-    	//string2lcd(lcd_str_array);    
-  	lcd_array[8] = lcd_str_array[0];
-  	lcd_array[9] = lcd_str_array[1];
-	rcv_rdy=0;
-    }//if 
+      if(rcv_rdy==1){
+         lcd_array[8] = lcd_str_array[0];
+  	 lcd_array[9] = lcd_str_array[1];
+	 rcv_rdy=0;
+      }//if 
 //**************  end rcv portion ***************
-   uart_puts("A");
-   itoa(send_seq,lcd_string,10);
-   uart_puts(lcd_string);
-   uart_putc('\0'); 
-//      refresh_lcd(lcd_array);
       snoozin();
       fetch_adc();
       clock_time();
@@ -734,6 +768,9 @@ int main() {
       for( int j = 0; j < 5; j++) {	//cycles through each of the five digits
          if(alarm){
 	    segment_data[2] &= 0b011;
+	 }
+	 if(mode_sel==4){
+	    segment_data[1] &= 0b01111111;
 	 }
 	 PORTA = segment_data[j];	//Writes the segment data to PORTA aka the segments
          PORTB = j << 4;		//J is bound 0-4 and that value is shifted left 4 so that 

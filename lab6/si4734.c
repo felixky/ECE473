@@ -307,6 +307,7 @@ void set_property(uint16_t property, uint16_t property_value){
 //Report the chip revision info via uart1. UART1 be setup and connected to 
 //a dumb terminal. e.g.: screen /dev/cu.usbserial-A800fh27 9600
 //
+/*
 void get_rev(){
     si4734_wr_buf[0] = GET_REV;                   //get rev command 
     twi_start_wr(SI4734_ADDRESS, si4734_wr_buf, 1);
@@ -320,7 +321,7 @@ void get_rev(){
     uart1_puts("             -------------------------   --------     \n\r");
     uart1_puts("                          "); itoa((int)si4734_revision_buf[1], uart1_tx_buf, 10); uart1_puts(uart1_tx_buf); 
     uart1_puts("             "); itoa((int)si4734_revision_buf[2], uart1_tx_buf, 10); uart1_puts(uart1_tx_buf); uart1_puts("\n\r");
-}
+}*/
 
 //********************************************************************************
 //                          get_fm_rsq_status()
@@ -329,7 +330,7 @@ void get_rev(){
 //Report the fm rsq status via uart1. Requires that UART1 be setup and connected to 
 //a terminal. e.g.: screen /dev/cu.usbserial-A800fh27 9600
 //Also requires that a fm_tune_status has been previously called.
-
+/*
 void get_fm_rsq_status(){
   uint8_t disp_freq;  //temp holding variable
   char    str[40];    //temp for building strings
@@ -344,4 +345,4 @@ void get_fm_rsq_status(){
   uart1_puts("freq high     :");   itoa((int)si4734_tune_status_buf[2], str, 16);   uart1_puts(str); uart1_puts("\n\r");
   uart1_puts("freq low      :");   itoa((int)si4734_tune_status_buf[3], str, 16);   uart1_puts(str); uart1_puts("\n\r");
   uart1_puts("rssi          :");   itoa((int)si4734_tune_status_buf[4], uart1_tx_buf, 16);   uart1_puts(uart1_tx_buf); uart1_puts("\n\r");
-}
+}*/

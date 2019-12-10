@@ -32,8 +32,8 @@
 #define AM_RSQ_STATUS_IN_INTACK 0x01
 #define GET_REV         0x10 
 
-//#define FALSE           0x00
-//#define TRUE            0x01
+#define FALSE           0x00
+#define TRUE            0x01
 
 //si4734.c function prototypes
 uint8_t get_int_status();
