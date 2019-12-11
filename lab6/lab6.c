@@ -72,15 +72,18 @@ volatile uint8_t a_sec_count = 0;
 volatile int8_t a_min_count = 0;
 volatile int8_t a_hour_count = 0;
 volatile uint8_t am_pm = 0;		//0=am 1=pm
-volatile uint8_t mil = 1;		//military time is on by default
+volatile uint8_t turn_off = 0;		//military time is on by default
+volatile uint8_t tune = 0;		//military time is on by default
 volatile uint8_t alarm = 0;
 volatile uint8_t snooze = 0;
-volatile uint8_t freq_change = 0;
-volatile uint8_t hex = 0;
+volatile uint16_t freq_change = 9990;
+volatile uint8_t radio = 0;
+
+//volatile uint8_t hex = 0;
 volatile uint16_t mult = 0;
-volatile int16_t sum = 0;
+//volatile int16_t sum = 0;
 volatile int16_t mode_sel = 0;
-volatile int16_t prev_mode = 5;
+//volatile int16_t prev_mode = 5;
 volatile int8_t EC_a_prev;
 volatile int8_t EC_b_prev;
 
@@ -254,6 +257,9 @@ void bars() {
 	 }  
       }
    }
+   if(mult == 8){
+      radio = 1;
+   }
    if(mult > 4) {			//I only want values from the
       mult = 0;				//first three buttons
    }
@@ -310,9 +316,9 @@ int8_t read_encoder() {
    uint8_t ec_b;
 
    //Shift_LD_N low
-   PORTE &= 0x00;	//Begining of SHIFT_LD_N pulse. It is low here
+   PORTE &= 0xBF;	//Begining of SHIFT_LD_N pulse. It is low here
    _delay_us(50);
-   PORTE |= 0xFF;	//End of SHIFT_LD_N pulse. back to high
+   PORTE |= 0x40;	//End of SHIFT_LD_N pulse. back to high
    PORTD &= 0x0F;	//CLK_INH low
 
    encoder_value = spi_read();
@@ -348,29 +354,6 @@ int8_t read_encoder() {
          else	//If not one of the state changes above, do nothing
 	 volume = volume;
       }
-/*      else {	//This is for encoder B
-         if(!(EC_b_prev) && (ec_b == 0x01)){//CW Rotation
-            min_count = min_count + 1;//value = value;
-	    if(min_count == 60){
-	       min_count = 0; 
-	       hour_count++;
-	       if(hour_count > 23)
-	          hour_count = 0;
-	    }
-         }
-         else if(!(EC_b_prev) && (ec_b == 0x02)){//CCW Rotation
-	    min_count = min_count - 1; //value = -(value);
-	    if(min_count < 0){
-	       min_count = 59;
-	       hour_count--;
-	       if(hour_count < 0){
-	          hour_count = 23;
-	       }
-	    }
-         }
-         else
-	    value = 0;
-      }*/
    }
 
 //mode_sel == 1 means that the user has selected the "time change" mode
@@ -453,28 +436,31 @@ int8_t read_encoder() {
 	    value = 0;
       }
    }
+//If mode_sel = 4 the user selected frequency change mode
    if(mode_sel == 4){
       if(ec_a != EC_a_prev){ //Compares curr encoder value to ast value 
          if(!(EC_a_prev) && (ec_a == 0x01)){//Determines CW rotation
             freq_change += 20;	//increment frequency by .02kHz
-	    if(freq_change <= 10790 ){
-		current_fm_freq = 10790;	//maximum frequency
+	    if(freq_change <= 10790 ){ //When freqency is greater than 107.9 change to 88.1
+		current_fm_freq = freq_change;	//maximum frequency
 	    }
 	    else {
+		freq_change = 10790;
 		current_fm_freq = freq_change;
 	    }
          }
          else if(!(EC_a_prev) && (ec_a == 0x02)){//Determines CCW rotation
 	    freq_change -= 20;	//decrement frequency 
-	    if(freq_change >= 8810){
-		current_fm_freq = 8810;	//minimum frequency
+	    if(freq_change >= 8810){ //When frequency is less than 88.1 change to 107.9
+		current_fm_freq = freq_change;	//minimum frequency
 	    }
 	    else {
+		freq_change = 8810;
 		current_fm_freq = freq_change;
 	    }
          }
          else	//If not one of the state changes above, do nothing
-	 volume = volume;
+	 tune = 1;
       }
    }
 //Saves previous values into volatile variables
@@ -569,11 +555,16 @@ void clock_time(){ //by default we use military time
          segment_data[0] = dec_to_7seg[a_min_count%10];
       }
       else if(mode_sel == 4){	//display frequency
-         segment_data[4] = dec_to_7seg[1];
-         segment_data[3] = dec_to_7seg[1];
+         if(current_fm_freq > 9999){
+	 segment_data[4] = dec_to_7seg[(current_fm_freq/10000)%10];
+	 }
+	 else
+	 segment_data[4] = 0b11111111;
+		
+         segment_data[3] = dec_to_7seg[(current_fm_freq/1000)%10];
          segment_data[2] = 0b111;
-         segment_data[1] = dec_to_7seg[1];
-         segment_data[0] = dec_to_7seg[1];
+         segment_data[1] = dec_to_7seg[(current_fm_freq/100)%10];
+         segment_data[0] = dec_to_7seg[(current_fm_freq/10)%10];
       }
       else{			//display military time
          segment_data[4] = dec_to_7seg[hour_count/10];
@@ -596,9 +587,14 @@ void port_init(){
    DDRE |= 0x4F;				//PE6 is SHIFT_LD_N
    DDRD |= 0xFF;				//PE1 is CLK_INH and PE2 is SRCLK
    DDRF |= 0x08;
+
    PORTC |= 0x01;
    PORTD |= 0xFF;
    PORTE |= 0xFF;
+   PORTF | (0<<PF1);
+
+   EICRB |= (1<<ISC71) | (1<<ISC70);
+   EIMSK |= (1<<INT7);
 }
 
 /**********************************************************************
@@ -612,11 +608,6 @@ void change_alarm_state(){
    if(alarm && (curr ==0)){
       line1_col1();
       string2lcd("Alarm");
-      //lcd_array[0] = 'A';
-      //lcd_array[1] = 'l';
-      //lcd_array[2] = 'a';
-      //lcd_array[3] = 'r';
-      //lcd_array[4] = 'm';
       curr = 1;
    }
    else if((!alarm) && (curr == 1)){
@@ -712,7 +703,30 @@ _delay_ms(100);    //wait for the xfer to finish
 
 }
 
+//******************************************************************************
+// External interrupt 7 is on Port E bit 7. The interrupt is triggered on the
+// rising edge of Port E bit 7.  The i/o clock must be running to detect the
+// edge (not asynchronouslly triggered)
+//******************************************************************************
+ISR(INT7_vect){
+	STC_interrupt = TRUE;
+	PORTF ^= (1 << PF1);
+}
+/***********************************************************************/
+ void radio_function(){ 
+	PORTE &= ~(1<<PE7); //int2 initially low to sense TWI mode
+	 DDRE  |= 0x80;      //turn on Port E bit 7 to drive it low
+	 PORTE |=  (1<<PE2); //hardware reset Si4734 
+	 _delay_us(200);     //hold for 200us, 100us by spec         
+	 PORTE &= ~(1<<PE2); //release reset 
+	 _delay_us(30);      //5us required because of my slow I2C translators I suspect
+		//Si code in "low" has 30us delay...no explaination
+	 DDRE  &= ~(0x80);   //now Port E bit 7 becomes input from the radio interrupt
 
+	 fm_pwr_up(); //powerup the radio as appropriate
+	 current_fm_freq = freq_change; //arg2, arg3: 99.9Mhz, 200khz steps
+	 fm_tune_freq(); //tune radio to frequency in current_fm_freq
+}
 /**********************************************************************
 Function: ()
 Description: 
@@ -765,6 +779,28 @@ int main() {
       fetch_adc();
       clock_time();
       change_alarm_state();
+      if(radio){
+	if(turn_off){
+	 line1_col1();
+	 string2lcd("OFF");
+	 radio = 0;
+	 radio_pwr_dwn();
+	 turn_off = 0;
+	}
+	else{
+	 line1_col1();
+	 string2lcd("ON ");
+	 radio = 0;
+	 turn_off = 1;
+	 alarm = 0;
+	 radio_function();
+	 radio_function();
+	}
+      }
+      if(tune){
+	 tune = 0;
+	 fm_tune_freq(current_fm_freq);
+      }
       for( int j = 0; j < 5; j++) {	//cycles through each of the five digits
          if(alarm){
 	    segment_data[2] &= 0b011;
