@@ -782,14 +782,14 @@ int main() {
       if(radio){
 	if(turn_off){
 	 line1_col1();
-	 string2lcd("OFF");
+	 string2lcd("     ");
 	 radio = 0;
 	 radio_pwr_dwn();
 	 turn_off = 0;
 	}
 	else{
 	 line1_col1();
-	 string2lcd("ON ");
+	 string2lcd("RADIO");
 	 radio = 0;
 	 turn_off = 1;
 	 alarm = 0;
@@ -797,7 +797,7 @@ int main() {
 	 radio_function();
 	}
       }
-      if(tune){
+      if(tune && turn_off){
 	 tune = 0;
 	 fm_tune_freq(current_fm_freq);
       }
