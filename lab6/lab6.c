@@ -2,10 +2,8 @@
 Author: Kyle Felix
 Date: November 12, 2019
 Class: ECE 473 Microcontrollers
-Descriptiion: In Lab 4, I will be implementing an alarm clock on the 
-	ATmega 128 with the use of an LCD, LED display, push button
-	board, encoder, and bargraph. TNCT0-3 will be used through
-	this project.
+Descriptiion: In Lab 6, I will be implementing an FM radio in addition 
+	to the previous alarm clock and temperature sensor labs.
 **********************************************************************/
 
 /*			  HARDWARE SETUP:
@@ -74,6 +72,7 @@ volatile int8_t a_hour_count = 0;
 volatile uint8_t am_pm = 0;		//0=am 1=pm
 volatile uint8_t turn_off = 0;		//military time is on by default
 volatile uint8_t tune = 0;		//military time is on by default
+volatile uint16_t st_preset = 10630;		//military time is on by default
 volatile uint8_t alarm = 0;
 volatile uint8_t snooze = 0;
 volatile uint16_t freq_change = 9990;
@@ -256,6 +255,17 @@ void bars() {
 	    }
 	 }  
       }
+   }
+//Two station presets
+   if(mult == 32){
+      current_fm_freq = 9330;
+      freq_change = 9330;
+      tune = 1;
+   }
+   if(mult == 16){
+      current_fm_freq = st_preset;
+      freq_change = st_preset;
+      tune = 1;
    }
    if(mult == 8){
       radio = 1;
@@ -517,7 +527,7 @@ ISR(TIMER0_COMP_vect) {
    count7_8125ms++;
    if((count7_8125ms % 128) == 0) { //interrupts every 1 second
       get_local_temp();
-      uart_puts("A");
+      uart_puts("A");	//Transmits an 'A' every second to ask for temp
       uart_putc('\0');
    }
 
@@ -591,7 +601,7 @@ void port_init(){
    PORTC |= 0x01;
    PORTD |= 0xFF;
    PORTE |= 0xFF;
-   PORTF | (0<<PF1);
+   PORTF |= 0x02;//(0<<PF1);
 
    EICRB |= (1<<ISC71) | (1<<ISC70);
    EIMSK |= (1<<INT7);
@@ -613,7 +623,7 @@ void change_alarm_state(){
    else if((!alarm) && (curr == 1)){
       curr = 0;
       line1_col1();
-      string2lcd("     ");
+      string2lcd("     ");	//clears the lcd of the alarm 
    }
    else{}
 }
@@ -691,8 +701,8 @@ void snoozin() {
 }
 
 /**********************************************************************
-Function: get_local_temp()
-Description: 
+Function: local_temp_init()
+Description: Initialized the lm73
 Parameters: NA
 **********************************************************************/
 void local_temp_init(){
@@ -708,7 +718,7 @@ _delay_ms(100);    //wait for the xfer to finish
 // rising edge of Port E bit 7.  The i/o clock must be running to detect the
 // edge (not asynchronouslly triggered)
 //******************************************************************************
-ISR(INT7_vect){
+ISR(INT7_vect){ //interrupt being used in the radio
 	STC_interrupt = TRUE;
 	PORTF ^= (1 << PF1);
 }
@@ -719,17 +729,17 @@ ISR(INT7_vect){
 	 PORTE |=  (1<<PE2); //hardware reset Si4734 
 	 _delay_us(200);     //hold for 200us, 100us by spec         
 	 PORTE &= ~(1<<PE2); //release reset 
-	 _delay_us(30);      //5us required because of my slow I2C translators I suspect
+	 _delay_us(30);      
 		//Si code in "low" has 30us delay...no explaination
 	 DDRE  &= ~(0x80);   //now Port E bit 7 becomes input from the radio interrupt
 
 	 fm_pwr_up(); //powerup the radio as appropriate
-	 current_fm_freq = freq_change; //arg2, arg3: 99.9Mhz, 200khz steps
+	 current_fm_freq = freq_change; 
 	 fm_tune_freq(); //tune radio to frequency in current_fm_freq
 }
 /**********************************************************************
-Function: ()
-Description: 
+Function: ISR(USART0_RX_vect)
+Description: reads the data being transferd via usart
 Parameters: NA
 **********************************************************************/
 ISR(USART0_RX_vect){
@@ -769,43 +779,43 @@ int main() {
    while(1){
 
 //***************  start rcv portion ***************
-      if(rcv_rdy==1){
+      if(rcv_rdy==1){	//read received uart data into my array that will be displayed
          lcd_array[8] = lcd_str_array[0];
   	 lcd_array[9] = lcd_str_array[1];
 	 rcv_rdy=0;
       }//if 
 //**************  end rcv portion ***************
-      snoozin();
-      fetch_adc();
-      clock_time();
+      snoozin();	//Snooze function
+      fetch_adc();	//get adc value
+      clock_time();	//update the clock time
       change_alarm_state();
-      if(radio){
+      if(radio){	//1 when the radio on/off button is pressed
 	if(turn_off){
 	 line1_col1();
-	 string2lcd("     ");
+	 string2lcd("     ");	//clears the top row of the lcd
 	 radio = 0;
-	 radio_pwr_dwn();
+	 radio_pwr_dwn();	//turn the radio off
 	 turn_off = 0;
 	}
 	else{
 	 line1_col1();
-	 string2lcd("RADIO");
-	 radio = 0;
+	 string2lcd("RADIO");	//printing radio on the lcd
+	 radio = 0;	//radio, turn off, and alarm are flags used elsewhere
 	 turn_off = 1;
 	 alarm = 0;
-	 radio_function();
-	 radio_function();
+	 radio_function();	//Powers up the radio
+	 radio_function();	//Spamming power up is the only way I got it to turn on
 	}
       }
-      if(tune && turn_off){
-	 tune = 0;
+      if(tune && turn_off){	//if the frequency was changed via the encoder and the radio is on
+	 tune = 0;		//then tune the fm radio
 	 fm_tune_freq(current_fm_freq);
       }
       for( int j = 0; j < 5; j++) {	//cycles through each of the five digits
          if(alarm){
 	    segment_data[2] &= 0b011;
 	 }
-	 if(mode_sel==4){
+	 if(mode_sel==4){		//This turns on the decimal point for the frequency
 	    segment_data[1] &= 0b01111111;
 	 }
 	 PORTA = segment_data[j];	//Writes the segment data to PORTA aka the segments
@@ -814,7 +824,7 @@ int main() {
          _delay_us(150);		//delay so that the display does not flicker
          PORTA = 0xFF;
       }
-	PORTB = 0x00;;
+	PORTB = 0x00;
    }
 return 0;
 }
